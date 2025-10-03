@@ -48,68 +48,6 @@ export const DoctorDashboard = () => {
         </p>
       </section>
 
-      <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">
-              Faturamento Mensal
-            </CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">R$ 45.231,89</div>
-            <p className="text-xs text-muted-foreground">
-              +20.1% em relação ao mês passado
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">
-              Pacientes Ativos
-            </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{clients.length}</div>
-            <p className="text-xs text-muted-foreground">+3 novos este mês</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Consultas Mês</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">+124</div>
-            <p className="text-xs text-muted-foreground">
-              +12% em relação ao mês passado
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">
-              Taxa de Ocupação
-            </CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">92%</div>
-            <p className="text-xs text-muted-foreground">
-              +2% em relação à semana passada
-            </p>
-          </CardContent>
-        </Card>
-      </section>
-
-      <section>
-        <h2 className="text-xl font-semibold mb-4">
-          Indicadores de Procedimentos (Geral)
-        </h2>
-        <KeyIndicators performedProcedures={allPerformedProcedures} />
-      </section>
-
       <section className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
@@ -203,6 +141,68 @@ export const DoctorDashboard = () => {
             </div>
           </CardContent>
         </Card>
+      </section>
+
+      <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">
+              Faturamento Mensal
+            </CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">R$ 45.231,89</div>
+            <p className="text-xs text-muted-foreground">
+              +20.1% em relação ao mês passado
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">
+              Pacientes Ativos
+            </CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{clients.length}</div>
+            <p className="text-xs text-muted-foreground">+3 novos este mês</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Consultas Mês</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">+124</div>
+            <p className="text-xs text-muted-foreground">
+              +12% em relação ao mês passado
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">
+              Taxa de Ocupação
+            </CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">92%</div>
+            <p className="text-xs text-muted-foreground">
+              +2% em relação à semana passada
+            </p>
+          </CardContent>
+        </Card>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-semibold mb-4">
+          Indicadores de Procedimentos (Geral)
+        </h2>
+        <KeyIndicators performedProcedures={allPerformedProcedures} />
       </section>
     </div>
   )
