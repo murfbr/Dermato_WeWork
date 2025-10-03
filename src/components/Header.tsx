@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -11,34 +11,34 @@ import {
   DropdownMenuRadioItem,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { Menu, Users, ChevronDown } from 'lucide-react'
+import {
+  Menu,
+  Users,
+  ChevronDown,
+  Home,
+  MessageSquare,
+  FileText,
+  Stethoscope,
+  Calendar,
+  User,
+} from 'lucide-react'
 import { NotificationsSheet } from '@/components/NotificationsSheet'
 import { doctor } from '@/lib/mock-data'
 import { useClient } from '@/contexts/ClientContext'
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { cn } from '@/lib/utils'
 
-const getPageTitle = (pathname: string): string => {
-  switch (pathname) {
-    case '/':
-      return 'Dashboard do Paciente'
-    case '/comunicacao':
-      return 'Comunicação'
-    case '/laudos':
-      return 'Laudos'
-    case '/procedimentos':
-      return 'Procedimentos'
-    case '/calendario':
-      return 'Calendário'
-    case '/perfil':
-      return 'Perfil do Paciente'
-    default:
-      return 'Dra. Paula Periquito'
-  }
-}
+const navItems = [
+  { to: '/', label: 'Dashboard', icon: Home },
+  { to: '/comunicacao', label: 'Comunicação', icon: MessageSquare },
+  { to: '/laudos', label: 'Laudos', icon: FileText },
+  { to: '/procedimentos', label: 'Procedimentos', icon: Stethoscope },
+  { to: '/calendario', label: 'Calendário', icon: Calendar },
+  { to: '/perfil', label: 'Perfil', icon: User },
+]
 
-export const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
-  const location = useLocation()
+export const Header = () => {
   const { clients, currentClient, setCurrentClient } = useClient()
-  const pageTitle = getPageTitle(location.pathname)
   const doctorInitials = doctor.name
     .split(' ')
     .map((n) => n[0])
@@ -46,40 +46,97 @@ export const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-card px-4 md:px-6 shadow-subtle">
-      <Button
-        variant="ghost"
-        size="icon"
-        className="md:hidden"
-        onClick={onMenuClick}
-      >
-        <Menu className="h-6 w-6" />
-      </Button>
-      <div className="flex items-center gap-4">
-        <Link to="/" className="flex items-center gap-2 font-semibold">
+      <nav className="flex items-center gap-6">
+        <div className="md:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="flex flex-col">
+              <nav className="grid gap-2 text-lg font-medium">
+                <Link
+                  to="/"
+                  className="flex items-center gap-2 text-lg font-semibold mb-4"
+                >
+                  <img
+                    src="https://img.usecurling.com/i?q=caduceus&color=azure"
+                    alt="Logo"
+                    className="h-8 w-8"
+                  />
+                  <span>Dra. Paula Periquito</span>
+                </Link>
+                {navItems.map((item) => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    end
+                    className={({ isActive }) =>
+                      cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                        isActive && 'text-primary bg-muted',
+                      )
+                    }
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {item.label}
+                  </NavLink>
+                ))}
+              </nav>
+            </SheetContent>
+          </Sheet>
+        </div>
+
+        <Link
+          to="/"
+          className="hidden items-center gap-2 text-lg font-semibold md:flex"
+        >
           <img
             src="https://img.usecurling.com/i?q=caduceus&color=azure"
             alt="Logo"
             className="h-8 w-8"
           />
-          <span className="hidden md:inline-block text-lg">
-            Dra. Paula Periquito
-          </span>
+          <span className="sr-only">Dra. Paula Periquito</span>
         </Link>
-      </div>
+        <div className="hidden md:flex items-center gap-4 text-sm lg:gap-6">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end
+              className={({ isActive }) =>
+                cn(
+                  'transition-colors hover:text-foreground',
+                  isActive
+                    ? 'text-foreground font-semibold'
+                    : 'text-muted-foreground',
+                )
+              }
+            >
+              {item.label}
+            </NavLink>
+          ))}
+        </div>
+      </nav>
 
-      <div className="flex-1 flex items-center gap-4">
-        <h1 className="font-semibold text-xl ml-4 hidden sm:block">
-          {pageTitle}
-        </h1>
+      <div className="ml-auto flex items-center gap-2 md:gap-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto sm:ml-4">
-              <Users className="mr-2 h-4 w-4" />
-              {currentClient?.profile.name ?? 'Selecione um paciente'}
-              <ChevronDown className="ml-2 h-4 w-4" />
+            <Button
+              variant="outline"
+              className="w-[150px] md:w-[200px] justify-between"
+            >
+              <div className="flex items-center gap-2 truncate">
+                <Users className="h-4 w-4" />
+                <span className="truncate">
+                  {currentClient?.profile.name ?? 'Selecione um paciente'}
+                </span>
+              </div>
+              <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
+          <DropdownMenuContent align="end" className="w-[200px]">
             <DropdownMenuLabel>Pacientes</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuRadioGroup
@@ -100,10 +157,9 @@ export const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
             </DropdownMenuRadioGroup>
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
 
-      <div className="flex items-center gap-4">
         <NotificationsSheet />
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
