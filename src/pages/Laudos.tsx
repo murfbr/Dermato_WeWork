@@ -17,10 +17,10 @@ import {
   DialogTrigger,
   DialogDescription,
 } from '@/components/ui/dialog'
-import { reports as mockReports } from '@/lib/mock-data'
 import { Microscope, TestTube, Search, FileDown, FileText } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import { useClient } from '@/contexts/ClientContext'
 
 const getIconForType = (type: string) => {
   if (type.toLowerCase().includes('biópsia'))
@@ -31,7 +31,8 @@ const getIconForType = (type: string) => {
 }
 
 export default function Laudos() {
-  const [reports] = useState(mockReports)
+  const { currentClient } = useClient()
+  const reports = currentClient?.reports || []
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState('todos')
   const [sortBy, setSortBy] = useState('recentes')
@@ -58,9 +59,11 @@ export default function Laudos() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl md:text-3xl font-bold">Meus Laudos</h1>
+        <h1 className="text-2xl md:text-3xl font-bold">
+          Laudos de {currentClient?.profile.name}
+        </h1>
         <p className="text-muted-foreground">
-          Visualize e gerencie seus resultados de exames.
+          Visualize e gerencie os resultados de exames do paciente.
         </p>
       </header>
 
@@ -121,7 +124,7 @@ export default function Laudos() {
                         {new Date(report.date).toLocaleDateString('pt-BR', {
                           timeZone: 'UTC',
                         })}{' '}
-                        | Dr(a). {report.doctor}
+                        | {report.doctor}
                       </p>
                     </div>
                   </div>
@@ -153,14 +156,15 @@ export default function Laudos() {
                             {new Date(report.date).toLocaleDateString('pt-BR', {
                               timeZone: 'UTC',
                             })}{' '}
-                            - Dr(a). {report.doctor}
+                            - {report.doctor}
                           </DialogDescription>
                         </DialogHeader>
                         <div className="py-4 space-y-2">
                           <p className="font-semibold">Resultados:</p>
                           <div className="p-4 border rounded-md bg-muted/50 text-sm">
                             <p>
-                              <strong>Paciente:</strong> Ana Silva
+                              <strong>Paciente:</strong>{' '}
+                              {currentClient?.profile.name}
                             </p>
                             <p>
                               <strong>Amostra:</strong> Tecido cutâneo, região

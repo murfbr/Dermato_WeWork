@@ -7,20 +7,37 @@ import {
   CardFooter,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { appointments, reports, conversations, patient } from '@/lib/mock-data'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import {
   Calendar,
   FileText,
   MessageSquare,
-  User,
   PlusCircle,
   MessageCircle,
   UserCircle,
 } from 'lucide-react'
+import { useClient } from '@/contexts/ClientContext'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const Dashboard = () => {
+  const { currentClient } = useClient()
+
+  if (!currentClient) {
+    return (
+      <div className="space-y-8">
+        <Skeleton className="h-10 w-1/2" />
+        <Skeleton className="h-6 w-3/4" />
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <Skeleton className="h-48 w-full" />
+          <Skeleton className="h-48 w-full" />
+          <Skeleton className="h-48 w-full" />
+        </div>
+      </div>
+    )
+  }
+
+  const { profile, appointments, reports, conversations } = currentClient
   const nextAppointment = appointments.find(
     (a) => new Date(a.date) > new Date(),
   )
@@ -31,10 +48,10 @@ const Dashboard = () => {
     <div className="space-y-8">
       <section>
         <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-          Olá, {patient.name.split(' ')[0]}!
+          Olá, {profile.name.split(' ')[0]}!
         </h1>
         <p className="text-muted-foreground">
-          Bem-vindo(a) ao seu painel de controle de saúde.
+          Este é o painel de controle de saúde do paciente.
         </p>
       </section>
 
@@ -87,7 +104,9 @@ const Dashboard = () => {
                 <p className="text-xl font-bold">{latestReport.type}</p>
                 <p className="text-muted-foreground">
                   Disponível desde{' '}
-                  {format(new Date(latestReport.date), 'dd/MM/yyyy')}
+                  {format(new Date(latestReport.date), 'dd/MM/yyyy', {
+                    timeZone: 'UTC',
+                  })}
                 </p>
               </div>
             ) : (
@@ -131,7 +150,7 @@ const Dashboard = () => {
       </section>
 
       <section>
-        <h2 className="text-xl font-semibold mb-4">Acesso Rápido</h2>
+        <h2 className="text-xl font-semibold mb-4">Ações Rápidas</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <Button
             asChild
@@ -163,7 +182,7 @@ const Dashboard = () => {
           >
             <Link to="/perfil">
               <UserCircle className="h-6 w-6" />
-              <span>Ver Meu Perfil</span>
+              <span>Ver Perfil</span>
             </Link>
           </Button>
         </div>

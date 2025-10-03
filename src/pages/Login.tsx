@@ -46,8 +46,10 @@ export default function Login() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Bem-vindo(a) de volta!</CardTitle>
-        <CardDescription>Acesse sua conta para continuar.</CardDescription>
+        <CardTitle>Acesso ao Painel</CardTitle>
+        <CardDescription>
+          Faça login para gerenciar seus pacientes.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -111,12 +113,12 @@ export default function Login() {
           </form>
         </Form>
         <div className="mt-6 text-center text-sm">
-          Não tem uma conta?{' '}
+          É um paciente?{' '}
           <Link
             to="/register"
             className="font-semibold text-primary hover:underline"
           >
-            Criar Conta
+            Crie sua conta
           </Link>
         </div>
       </CardContent>

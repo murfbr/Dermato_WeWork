@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
-import { appointments as mockAppointments } from '@/lib/mock-data'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { Plus } from 'lucide-react'
@@ -22,10 +21,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { useClient } from '@/contexts/ClientContext'
 
 export default function Calendario() {
+  const { currentClient } = useClient()
+  const appointments = currentClient?.appointments || []
   const [date, setDate] = useState<Date | undefined>(new Date())
-  const [appointments] = useState(mockAppointments)
   const [step, setStep] = useState(1)
 
   const renderStep = () => {
@@ -47,32 +48,23 @@ export default function Calendario() {
       case 2:
         return (
           <div>
-            <DialogDescription>Escolha o profissional.</DialogDescription>
-            <Select>
-              <SelectTrigger>
-                <SelectValue placeholder="Dermatologista" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="dr-ricardo">Dr. Ricardo Gomes</SelectItem>
-              </SelectContent>
-            </Select>
+            <DialogDescription>
+              Paciente: {currentClient?.profile.name}
+            </DialogDescription>
+            <p className="text-sm text-muted-foreground mt-2">
+              Selecione a data e hora para o agendamento.
+            </p>
+            <Calendar mode="single" selected={date} onSelect={setDate} />
           </div>
         )
       case 3:
         return (
           <div>
-            <DialogDescription>Selecione a data e hora.</DialogDescription>
-            <Calendar mode="single" selected={date} onSelect={setDate} />
-          </div>
-        )
-      case 4:
-        return (
-          <div>
             <DialogDescription>
-              Confirme os detalhes do seu agendamento.
+              Confirme os detalhes do agendamento.
             </DialogDescription>
             <p>
-              Consulta de Rotina com Dr. Ricardo Gomes em{' '}
+              Consulta de Rotina para {currentClient?.profile.name} em{' '}
               {date?.toLocaleDateString()}.
             </p>
           </div>
@@ -88,7 +80,9 @@ export default function Calendario() {
         <h1 className="text-2xl md:text-3xl font-bold">
           Calendário e Agendamentos
         </h1>
-        <p className="text-muted-foreground">Gerencie suas consultas.</p>
+        <p className="text-muted-foreground">
+          Gerencie as consultas de {currentClient?.profile.name}.
+        </p>
       </header>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
@@ -131,7 +125,7 @@ export default function Calendario() {
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Agendar Nova Consulta - Etapa {step}/4</DialogTitle>
+            <DialogTitle>Agendar Nova Consulta - Etapa {step}/3</DialogTitle>
           </DialogHeader>
           <div className="py-4">{renderStep()}</div>
           <DialogFooter>
@@ -140,7 +134,7 @@ export default function Calendario() {
                 Voltar
               </Button>
             )}
-            {step < 4 ? (
+            {step < 3 ? (
               <Button onClick={() => setStep((s) => s + 1)}>Avançar</Button>
             ) : (
               <Button>Confirmar</Button>

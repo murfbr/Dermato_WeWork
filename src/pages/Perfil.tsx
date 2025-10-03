@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -10,25 +10,37 @@ import {
   CardDescription,
 } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { patient as mockPatient } from '@/lib/mock-data'
 import { Separator } from '@/components/ui/separator'
 import { useNavigate } from 'react-router-dom'
+import { useClient } from '@/contexts/ClientContext'
+import { Profile } from '@/lib/mock-data'
 
 export default function Perfil() {
-  const [patient, setPatient] = useState(mockPatient)
+  const { currentClient } = useClient()
+  const [patient, setPatient] = useState<Profile | null>(
+    currentClient?.profile || null,
+  )
   const [isEditing, setIsEditing] = useState(false)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    setPatient(currentClient?.profile || null)
+  }, [currentClient])
 
   const handleLogout = () => {
     navigate('/login')
   }
 
+  if (!patient) {
+    return <div>Selecione um paciente para ver o perfil.</div>
+  }
+
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <header>
-        <h1 className="text-2xl md:text-3xl font-bold">Meu Perfil</h1>
+        <h1 className="text-2xl md:text-3xl font-bold">Perfil do Paciente</h1>
         <p className="text-muted-foreground">
-          Gerencie suas informações pessoais e de segurança.
+          Gerencie as informações pessoais do paciente.
         </p>
       </header>
 
@@ -106,19 +118,6 @@ export default function Perfil() {
               </div>
             </div>
             {isEditing && <Button className="mt-4">Salvar Alterações</Button>}
-          </div>
-          <Separator />
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Segurança</h3>
-            <div className="space-y-4">
-              <Label htmlFor="currentPassword">Senha Atual</Label>
-              <Input id="currentPassword" type="password" />
-              <Label htmlFor="newPassword">Nova Senha</Label>
-              <Input id="newPassword" type="password" />
-              <Label htmlFor="confirmNewPassword">Confirmar Nova Senha</Label>
-              <Input id="confirmNewPassword" type="password" />
-              <Button>Alterar Senha</Button>
-            </div>
           </div>
           <Separator />
           <div className="flex flex-col md:flex-row gap-4 justify-between items-center">

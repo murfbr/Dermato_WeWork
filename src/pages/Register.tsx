@@ -62,7 +62,7 @@ export default function Register() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Crie sua conta</CardTitle>
+        <CardTitle>Crie sua conta de paciente</CardTitle>
         <CardDescription>
           Preencha os campos abaixo para se registrar.
         </CardDescription>

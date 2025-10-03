@@ -7,11 +7,13 @@ import {
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Bell } from 'lucide-react'
-import { notifications } from '@/lib/mock-data'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import { useClient } from '@/contexts/ClientContext'
 
 export const NotificationsSheet = () => {
+  const { currentClient } = useClient()
+  const notifications = currentClient?.notifications || []
   const unreadCount = notifications.filter((n) => !n.read).length
 
   return (
@@ -31,31 +33,39 @@ export const NotificationsSheet = () => {
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>Notificações</SheetTitle>
+          <SheetTitle>
+            Notificações de {currentClient?.profile.name.split(' ')[0]}
+          </SheetTitle>
         </SheetHeader>
         <div className="mt-4 space-y-4">
-          {notifications.map((notification) => (
-            <div
-              key={notification.id}
-              className="flex items-start space-x-3 p-3 rounded-lg transition-colors hover:bg-muted/50"
-            >
+          {notifications.length > 0 ? (
+            notifications.map((notification) => (
               <div
-                className={cn(
-                  'h-2 w-2 rounded-full mt-2',
-                  !notification.read ? 'bg-primary' : 'bg-transparent',
-                )}
-              />
-              <div>
-                <p className="font-semibold">{notification.title}</p>
-                <p className="text-sm text-muted-foreground">
-                  {notification.description}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {notification.time}
-                </p>
+                key={notification.id}
+                className="flex items-start space-x-3 p-3 rounded-lg transition-colors hover:bg-muted/50"
+              >
+                <div
+                  className={cn(
+                    'h-2 w-2 rounded-full mt-2',
+                    !notification.read ? 'bg-primary' : 'bg-transparent',
+                  )}
+                />
+                <div>
+                  <p className="font-semibold">{notification.title}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {notification.description}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {notification.time}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-center text-muted-foreground mt-8">
+              Nenhuma notificação.
+            </p>
+          )}
         </div>
       </SheetContent>
     </Sheet>
