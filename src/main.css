@@ -28,7 +28,9 @@
     --ring: 211 100% 50%;
     --radius: 0.5rem;
     --success: 134 61% 41%; /* #28a745 */
+    --success-foreground: 134 61% 25%;
     --warning: 45 100% 51%; /* #ffc107 */
+    --warning-foreground: 45 100% 25%;
   }
 
   .dark {
@@ -53,7 +55,9 @@
     --input: 210 10% 30%;
     --ring: 211 100% 50%;
     --success: 134 61% 41%;
+    --success-foreground: 134 61% 85%;
     --warning: 45 100% 51%;
+    --warning-foreground: 45 100% 85%;
   }
 }
 
