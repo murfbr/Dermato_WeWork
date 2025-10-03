@@ -14,40 +14,39 @@ import Calendario from './pages/Calendario'
 import Perfil from './pages/Perfil'
 import NotFound from './pages/NotFound'
 import { ClientProvider } from './contexts/ClientContext'
+import { AuthProvider } from './contexts/AuthContext'
 import Procedimentos from './pages/Procedimentos'
 
 const App = () => (
   <BrowserRouter>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <Routes>
-        {/* Authenticated Routes */}
-        <Route
-          element={
-            <ClientProvider>
-              <Layout />
-            </ClientProvider>
-          }
-        >
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/comunicacao" element={<Comunicacao />} />
-          <Route path="/laudos" element={<Laudos />} />
-          <Route path="/procedimentos" element={<Procedimentos />} />
-          <Route path="/calendario" element={<Calendario />} />
-          <Route path="/perfil" element={<Perfil />} />
-        </Route>
+    <AuthProvider>
+      <ClientProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <Routes>
+            {/* Authenticated Routes */}
+            <Route element={<Layout />}>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/comunicacao" element={<Comunicacao />} />
+              <Route path="/laudos" element={<Laudos />} />
+              <Route path="/procedimentos" element={<Procedimentos />} />
+              <Route path="/calendario" element={<Calendario />} />
+              <Route path="/perfil" element={<Perfil />} />
+            </Route>
 
-        {/* Authentication Routes */}
-        <Route element={<AuthLayout />}>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-        </Route>
+            {/* Authentication Routes */}
+            <Route element={<AuthLayout />}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+            </Route>
 
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </TooltipProvider>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </TooltipProvider>
+      </ClientProvider>
+    </AuthProvider>
   </BrowserRouter>
 )
 
