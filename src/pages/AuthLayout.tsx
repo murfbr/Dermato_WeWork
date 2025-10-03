@@ -11,7 +11,7 @@ export default function AuthLayout() {
               alt="Logo"
               className="h-12 w-12"
             />
-            <span className="text-2xl font-bold">Dra. Paula Periquito</span>
+            <span className="text-2xl font-bold">Clinica Paula Periquito</span>
           </Link>
         </div>
         <main>

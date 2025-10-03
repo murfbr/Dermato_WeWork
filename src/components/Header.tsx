@@ -14,7 +14,6 @@ import { Button } from '@/components/ui/button'
 import {
   Menu,
   Users,
-  ChevronDown,
   Home,
   MessageSquare,
   FileText,
@@ -65,7 +64,7 @@ export const Header = () => {
                     alt="Logo"
                     className="h-8 w-8"
                   />
-                  <span>Dra. Paula Periquito</span>
+                  <span>Clinica Paula Periquito</span>
                 </Link>
                 {navItems.map((item) => (
                   <NavLink
@@ -97,7 +96,7 @@ export const Header = () => {
             alt="Logo"
             className="h-8 w-8"
           />
-          <span className="sr-only">Dra. Paula Periquito</span>
+          <span>Clinica Paula Periquito</span>
         </Link>
         <div className="hidden md:flex items-center gap-4 text-sm lg:gap-6">
           {navItems.map((item) => (
@@ -123,21 +122,15 @@ export const Header = () => {
       <div className="ml-auto flex items-center gap-2 md:gap-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="w-[150px] md:w-[200px] justify-between"
-            >
-              <div className="flex items-center gap-2 truncate">
-                <Users className="h-4 w-4" />
-                <span className="truncate">
-                  {currentClient?.profile.name ?? 'Selecione um paciente'}
-                </span>
-              </div>
-              <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0" />
+            <Button variant="ghost" className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              <span className="hidden md:inline font-medium">
+                {currentClient?.profile.name ?? 'Selecionar Paciente'}
+              </span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-[200px]">
-            <DropdownMenuLabel>Pacientes</DropdownMenuLabel>
+            <DropdownMenuLabel>Selecionar Paciente</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuRadioGroup
               value={currentClient?.id.toString()}
