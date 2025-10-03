@@ -57,10 +57,17 @@ export interface Conversation {
   messages: Message[]
 }
 
+export interface AfterImage {
+  url: string
+  date: string
+}
+
 export interface PerformedProcedure {
   id: number
   date: string
   name: 'Botox' | 'Preenchimento' | 'Rotina' | 'Lifting Facial'
+  beforeImageUrl: string
+  afterImages: AfterImage[]
 }
 
 export interface Client {
@@ -126,22 +133,50 @@ const generateMockProcedures = (): PerformedProcedure[] => {
 
   for (let month = 0; month <= currentMonth; month++) {
     const daysInMonth = new Date(currentYear, month + 1, 0).getDate()
-    const numProcedures = Math.floor(Math.random() * 20) + 10
+    const numProcedures = Math.floor(Math.random() * 3) + 1
 
     for (let i = 0; i < numProcedures; i++) {
       const day = Math.floor(Math.random() * daysInMonth) + 1
-      const date = new Date(currentYear, month, day)
+      const procedureDate = new Date(currentYear, month, day)
       const procedureName =
         procedureNames[Math.floor(Math.random() * procedureNames.length)]
 
+      if (procedureName === 'Rotina') {
+        procedures.push({
+          id: idCounter++,
+          date: procedureDate.toISOString(),
+          name: procedureName,
+          beforeImageUrl: '',
+          afterImages: [],
+        })
+        continue
+      }
+
+      const beforeImageUrl = `https://img.usecurling.com/p/800/600?q=${procedureName}%20before&seed=${idCounter}`
+
+      const afterImages: AfterImage[] = []
+      const numAfterImages = Math.floor(Math.random() * 3) + 1
+      for (let j = 0; j < numAfterImages; j++) {
+        const afterDate = new Date(procedureDate)
+        afterDate.setDate(procedureDate.getDate() + (j + 1) * 15)
+        afterImages.push({
+          url: `https://img.usecurling.com/p/800/600?q=${procedureName}%20after&seed=${idCounter + j + 1}`,
+          date: afterDate.toISOString(),
+        })
+      }
+
       procedures.push({
         id: idCounter++,
-        date: date.toISOString(),
+        date: procedureDate.toISOString(),
         name: procedureName,
+        beforeImageUrl,
+        afterImages,
       })
     }
   }
-  return procedures
+  return procedures.sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  )
 }
 
 export const clients: Client[] = [

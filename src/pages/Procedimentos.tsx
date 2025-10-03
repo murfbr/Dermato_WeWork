@@ -4,41 +4,148 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
+  CardFooter,
 } from '@/components/ui/card'
-import { procedures, Procedure } from '@/lib/mock-data'
-import { AspectRatio } from '@/components/ui/aspect-ratio'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { useClient } from '@/contexts/ClientContext'
+import { PerformedProcedure } from '@/lib/mock-data'
+import { format } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
+import { Stethoscope, Image as ImageIcon, Info } from 'lucide-react'
+import { BeforeAfterSlider } from '@/components/BeforeAfterSlider'
+import { Skeleton } from '@/components/ui/skeleton'
+
+const ProcedureHistoryCard = ({
+  procedure,
+}: {
+  procedure: PerformedProcedure
+}) => {
+  const hasImages = procedure.beforeImageUrl && procedure.afterImages.length > 0
+
+  return (
+    <Card className="flex flex-col">
+      <CardHeader>
+        <div className="flex items-center gap-4">
+          <div className="bg-primary/10 p-3 rounded-full">
+            <Stethoscope className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <CardTitle>{procedure.name}</CardTitle>
+            <CardDescription>
+              Realizado em:{' '}
+              {format(new Date(procedure.date), 'dd/MM/yyyy', { locale: ptBR })}
+            </CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="flex-grow">
+        <p className="text-sm text-muted-foreground">
+          {procedure.name === 'Botox'
+            ? 'Aplicação para relaxamento muscular e suavização de rugas.'
+            : procedure.name === 'Preenchimento'
+              ? 'Uso de preenchedores para restaurar volume e contorno.'
+              : procedure.name === 'Lifting Facial'
+                ? 'Técnicas para promover o rejuvenescimento e firmeza da pele.'
+                : 'Consulta de acompanhamento e cuidados com a pele.'}
+        </p>
+      </CardContent>
+      <CardFooter>
+        {hasImages ? (
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="w-full">
+                <ImageIcon className="mr-2 h-4 w-4" />
+                Ver Antes e Depois
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl">
+              <DialogHeader>
+                <DialogTitle>Comparativo: {procedure.name}</DialogTitle>
+                <DialogDescription>
+                  Procedimento de{' '}
+                  {format(new Date(procedure.date), 'dd/MM/yyyy', {
+                    locale: ptBR,
+                  })}
+                </DialogDescription>
+              </DialogHeader>
+              <BeforeAfterSlider
+                beforeImage={procedure.beforeImageUrl}
+                afterImages={procedure.afterImages}
+              />
+            </DialogContent>
+          </Dialog>
+        ) : (
+          <Button
+            variant="outline"
+            disabled
+            className="w-full cursor-not-allowed"
+          >
+            <Info className="mr-2 h-4 w-4" />
+            Sem comparativo visual
+          </Button>
+        )}
+      </CardFooter>
+    </Card>
+  )
+}
 
 export default function Procedimentos() {
+  const { currentClient } = useClient()
+
+  if (!currentClient) {
+    return (
+      <div className="space-y-6">
+        <header>
+          <Skeleton className="h-8 w-1/2 mb-2" />
+          <Skeleton className="h-5 w-3/4" />
+        </header>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <Skeleton className="h-64 w-full" />
+          <Skeleton className="h-64 w-full" />
+          <Skeleton className="h-64 w-full" />
+        </div>
+      </div>
+    )
+  }
+
+  const { performedProcedures, profile } = currentClient
+
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl md:text-3xl font-bold">Procedimentos</h1>
+        <h1 className="text-2xl md:text-3xl font-bold">
+          Histórico de Procedimentos
+        </h1>
         <p className="text-muted-foreground">
-          Conheça os principais procedimentos oferecidos pela clínica.
+          Veja todos os procedimentos realizados por{' '}
+          {profile.name.split(' ')[0]}.
         </p>
       </header>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {procedures.map((procedure: Procedure) => (
-          <Card
-            key={procedure.id}
-            className="overflow-hidden hover:shadow-lg transition-shadow duration-300"
-          >
-            <AspectRatio ratio={16 / 9}>
-              <img
-                src={procedure.imageUrl}
-                alt={procedure.name}
-                className="object-cover w-full h-full"
-              />
-            </AspectRatio>
-            <CardHeader>
-              <CardTitle>{procedure.name}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription>{procedure.description}</CardDescription>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {performedProcedures.length > 0 ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {performedProcedures.map((procedure) => (
+            <ProcedureHistoryCard key={procedure.id} procedure={procedure} />
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center text-center py-16 border-2 border-dashed rounded-lg">
+          <Stethoscope className="h-12 w-12 text-muted-foreground mb-4" />
+          <h3 className="text-xl font-semibold">
+            Nenhum procedimento encontrado
+          </h3>
+          <p className="text-muted-foreground mt-2">
+            O histórico de procedimentos deste paciente está vazio.
+          </p>
+        </div>
+      )}
     </div>
   )
 }
