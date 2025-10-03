@@ -57,6 +57,12 @@ export interface Conversation {
   messages: Message[]
 }
 
+export interface PerformedProcedure {
+  id: number
+  date: string
+  name: 'Botox' | 'Preenchimento' | 'Rotina' | 'Lifting Facial'
+}
+
 export interface Client {
   id: number
   profile: Profile
@@ -64,6 +70,7 @@ export interface Client {
   appointments: Appointment[]
   reports: Report[]
   conversations: Conversation[]
+  performedProcedures: PerformedProcedure[]
 }
 
 export interface Procedure {
@@ -103,6 +110,39 @@ export const procedures: Procedure[] = [
     imageUrl: 'https://img.usecurling.com/p/400/300?q=face%20lifting',
   },
 ]
+
+const generateMockProcedures = (): PerformedProcedure[] => {
+  const procedures: PerformedProcedure[] = []
+  const procedureNames: PerformedProcedure['name'][] = [
+    'Botox',
+    'Preenchimento',
+    'Rotina',
+    'Lifting Facial',
+  ]
+  const today = new Date()
+  const currentYear = today.getFullYear()
+  const currentMonth = today.getMonth()
+  let idCounter = 1
+
+  for (let month = 0; month <= currentMonth; month++) {
+    const daysInMonth = new Date(currentYear, month + 1, 0).getDate()
+    const numProcedures = Math.floor(Math.random() * 20) + 10
+
+    for (let i = 0; i < numProcedures; i++) {
+      const day = Math.floor(Math.random() * daysInMonth) + 1
+      const date = new Date(currentYear, month, day)
+      const procedureName =
+        procedureNames[Math.floor(Math.random() * procedureNames.length)]
+
+      procedures.push({
+        id: idCounter++,
+        date: date.toISOString(),
+        name: procedureName,
+      })
+    }
+  }
+  return procedures
+}
 
 export const clients: Client[] = [
   {
@@ -193,6 +233,7 @@ export const clients: Client[] = [
         ],
       },
     ],
+    performedProcedures: generateMockProcedures(),
   },
   {
     id: 2,
@@ -268,6 +309,7 @@ export const clients: Client[] = [
         ],
       },
     ],
+    performedProcedures: generateMockProcedures(),
   },
   {
     id: 3,
@@ -343,5 +385,6 @@ export const clients: Client[] = [
         ],
       },
     ],
+    performedProcedures: generateMockProcedures(),
   },
 ]

@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { useClient } from '@/contexts/ClientContext'
 import { Skeleton } from '@/components/ui/skeleton'
+import { KeyIndicators } from '@/components/KeyIndicators'
 
 const Dashboard = () => {
   const { currentClient } = useClient()
@@ -33,11 +34,16 @@ const Dashboard = () => {
           <Skeleton className="h-48 w-full" />
           <Skeleton className="h-48 w-full" />
         </div>
+        <div className="mt-8">
+          <Skeleton className="h-8 w-1/3 mb-4" />
+          <Skeleton className="h-64 w-full" />
+        </div>
       </div>
     )
   }
 
-  const { profile, appointments, reports, conversations } = currentClient
+  const { profile, appointments, reports, conversations, performedProcedures } =
+    currentClient
   const nextAppointment = appointments.find(
     (a) => new Date(a.date) > new Date(),
   )
@@ -186,6 +192,13 @@ const Dashboard = () => {
             </Link>
           </Button>
         </div>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-semibold mb-4">
+          Indicadores Chave de Atendimento
+        </h2>
+        <KeyIndicators performedProcedures={performedProcedures} />
       </section>
     </div>
   )
