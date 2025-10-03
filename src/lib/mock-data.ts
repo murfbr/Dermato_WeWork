@@ -1,9 +1,14 @@
-import { doctor as doctorInfo } from './mock-data'
-
 export const doctor = {
   name: 'Dra. Paula Periquito',
   email: 'paula.periquito@derma.com',
   avatarUrl: 'https://img.usecurling.com/ppl/medium?gender=female&seed=10',
+  bio: 'Dermatologista especialista em procedimentos estéticos e cuidados com a pele. Focada em resultados naturais e na saúde integral dos pacientes.',
+  practicedProcedures: ['botox', 'preenchimento'],
+  notificationSettings: {
+    newAppointments: true,
+    chatMessages: true,
+    reportAvailable: false,
+  },
 }
 
 export interface Profile {
