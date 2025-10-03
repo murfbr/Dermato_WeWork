@@ -24,6 +24,8 @@ const getPageTitle = (pathname: string): string => {
       return 'Comunicação'
     case '/laudos':
       return 'Laudos'
+    case '/procedimentos':
+      return 'Procedimentos'
     case '/calendario':
       return 'Calendário'
     case '/perfil':

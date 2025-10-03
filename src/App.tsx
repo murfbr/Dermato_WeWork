@@ -14,6 +14,7 @@ import Calendario from './pages/Calendario'
 import Perfil from './pages/Perfil'
 import NotFound from './pages/NotFound'
 import { ClientProvider } from './contexts/ClientContext'
+import Procedimentos from './pages/Procedimentos'
 
 const App = () => (
   <BrowserRouter>
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/" element={<Dashboard />} />
           <Route path="/comunicacao" element={<Comunicacao />} />
           <Route path="/laudos" element={<Laudos />} />
+          <Route path="/procedimentos" element={<Procedimentos />} />
           <Route path="/calendario" element={<Calendario />} />
           <Route path="/perfil" element={<Perfil />} />
         </Route>

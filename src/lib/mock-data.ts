@@ -66,6 +66,44 @@ export interface Client {
   conversations: Conversation[]
 }
 
+export interface Procedure {
+  id: string
+  name: string
+  description: string
+  imageUrl: string
+}
+
+export const procedures: Procedure[] = [
+  {
+    id: 'botox',
+    name: 'Botox',
+    description:
+      'Aplicação de toxina botulínica para suavizar rugas e linhas de expressão.',
+    imageUrl: 'https://img.usecurling.com/p/400/300?q=botox%20injection',
+  },
+  {
+    id: 'preenchimento',
+    name: 'Preenchimento',
+    description:
+      'Uso de ácido hialurônico para restaurar volume e contorno facial.',
+    imageUrl: 'https://img.usecurling.com/p/400/300?q=facial%20filler',
+  },
+  {
+    id: 'rotina',
+    name: 'Rotina',
+    description:
+      'Consultas regulares para acompanhamento da saúde da pele e prevenção.',
+    imageUrl: 'https://img.usecurling.com/p/400/300?q=skincare%20routine',
+  },
+  {
+    id: 'lifting',
+    name: 'Lifting Facial',
+    description:
+      'Procedimentos para combater a flacidez e promover o rejuvenescimento da pele.',
+    imageUrl: 'https://img.usecurling.com/p/400/300?q=face%20lifting',
+  },
+]
+
 export const clients: Client[] = [
   {
     id: 1,

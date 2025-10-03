@@ -7,6 +7,7 @@ import {
   Calendar,
   User,
   ChevronLeft,
+  Stethoscope,
 } from 'lucide-react'
 import { Button } from './ui/button'
 
@@ -14,6 +15,7 @@ const navItems = [
   { to: '/', icon: Home, label: 'Dashboard' },
   { to: '/comunicacao', icon: MessageSquare, label: 'Comunicação' },
   { to: '/laudos', icon: FileText, label: 'Laudos' },
+  { to: '/procedimentos', icon: Stethoscope, label: 'Procedimentos' },
   { to: '/calendario', icon: Calendar, label: 'Calendário' },
   { to: '/perfil', icon: User, label: 'Perfil' },
 ]
