@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import {
   Card,
   CardContent,
@@ -15,18 +16,11 @@ import {
 } from '@/components/ui/table'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import {
-  Users,
-  Activity,
-  DollarSign,
-  Calendar,
-  ArrowUpRight,
-} from 'lucide-react'
+import { Users, Activity, DollarSign, Calendar } from 'lucide-react'
 import { useClient } from '@/contexts/ClientContext'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { Link } from 'react-router-dom'
+import { KeyIndicators } from './KeyIndicators'
 
 export const DoctorDashboard = () => {
   const { clients } = useClient()
@@ -38,6 +32,10 @@ export const DoctorDashboard = () => {
     .filter((appt) => new Date(appt.date) > new Date())
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .slice(0, 5)
+
+  const allPerformedProcedures = useMemo(() => {
+    return clients.flatMap((client) => client.performedProcedures)
+  }, [clients])
 
   return (
     <div className="space-y-8">
@@ -103,6 +101,13 @@ export const DoctorDashboard = () => {
             </p>
           </CardContent>
         </Card>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-semibold mb-4">
+          Indicadores de Procedimentos (Geral)
+        </h2>
+        <KeyIndicators performedProcedures={allPerformedProcedures} />
       </section>
 
       <section className="grid gap-6 lg:grid-cols-2">

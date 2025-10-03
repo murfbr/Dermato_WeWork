@@ -19,7 +19,6 @@ import {
 } from 'lucide-react'
 import { useClient } from '@/contexts/ClientContext'
 import { Skeleton } from '@/components/ui/skeleton'
-import { KeyIndicators } from '@/components/KeyIndicators'
 
 export const ClientDashboard = () => {
   const { currentClient } = useClient()
@@ -42,8 +41,7 @@ export const ClientDashboard = () => {
     )
   }
 
-  const { profile, appointments, reports, conversations, performedProcedures } =
-    currentClient
+  const { profile, appointments, reports, conversations } = currentClient
   const nextAppointment = appointments.find(
     (a) => new Date(a.date) > new Date(),
   )
@@ -192,13 +190,6 @@ export const ClientDashboard = () => {
             </Link>
           </Button>
         </div>
-      </section>
-
-      <section>
-        <h2 className="text-xl font-semibold mb-4">
-          Seu Histórico de Atendimentos
-        </h2>
-        <KeyIndicators performedProcedures={performedProcedures} />
       </section>
     </div>
   )
