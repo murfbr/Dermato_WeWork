@@ -1,6 +1,6 @@
 export const doctor = {
-  name: 'Dra. Paula Periquito',
-  email: 'paula.periquito@derma.com',
+  name: 'Dra. Flavia Novis',
+  email: 'flavia.novis@derma.com',
   avatarUrl: 'https://img.usecurling.com/ppl/medium?gender=female&seed=10',
   bio: 'Dermatologista especialista em procedimentos estéticos e cuidados com a pele. Focada em resultados naturais e na saúde integral dos pacientes.',
   practicedProcedures: ['botox', 'preenchimento'],
@@ -210,7 +210,7 @@ export const clients: Client[] = [
         id: 2,
         read: false,
         title: 'Lembrete de consulta',
-        description: 'Sua consulta com Dra. Paula é amanhã às 10:00.',
+        description: 'Sua consulta com Dra. Flavia é amanhã às 10:00.',
         time: 'há 2 horas',
       },
     ],
@@ -218,7 +218,7 @@ export const clients: Client[] = [
       {
         id: 1,
         date: '2025-10-28T10:00:00',
-        doctor: 'Dra. Paula Periquito',
+        doctor: 'Dra. Flavia Novis',
         type: 'Consulta de Rotina',
         status: 'Confirmado',
         location: 'Clínica DermApp, Sala 3',
@@ -226,7 +226,7 @@ export const clients: Client[] = [
       {
         id: 2,
         date: '2025-09-20T09:00:00',
-        doctor: 'Dra. Paula Periquito',
+        doctor: 'Dra. Flavia Novis',
         type: 'Retorno',
         status: 'Realizado',
         location: 'Clínica DermApp, Sala 3',
@@ -237,14 +237,14 @@ export const clients: Client[] = [
         id: 1,
         date: '2025-10-20',
         type: 'Biópsia de Pele',
-        doctor: 'Dra. Paula Periquito',
+        doctor: 'Dra. Flavia Novis',
         status: 'Disponível',
       },
       {
         id: 2,
         date: '2025-09-05',
         type: 'Dermatoscopia',
-        doctor: 'Dra. Paula Periquito',
+        doctor: 'Dra. Flavia Novis',
         status: 'Disponível',
       },
     ],
@@ -276,7 +276,7 @@ export const clients: Client[] = [
       },
       {
         id: 2,
-        contactName: 'Dra. Paula Periquito',
+        contactName: 'Dra. Flavia Novis',
         contactAvatar: doctor.avatarUrl,
         lastMessage: 'Estou à disposição para qualquer dúvida.',
         timestamp: 'Ontem',
@@ -284,7 +284,7 @@ export const clients: Client[] = [
         messages: [
           {
             id: 1,
-            sender: 'Dra. Paula Periquito',
+            sender: 'Dra. Flavia Novis',
             text: 'Olá Ana, como você está se sentindo após o procedimento?',
             timestamp: 'Ontem 15:00',
             read: true,
@@ -298,7 +298,7 @@ export const clients: Client[] = [
           },
           {
             id: 3,
-            sender: 'Dra. Paula Periquito',
+            sender: 'Dra. Flavia Novis',
             text: 'Que ótimo! Estou à disposição para qualquer dúvida.',
             timestamp: 'Ontem 15:06',
             read: true,
@@ -332,7 +332,7 @@ export const clients: Client[] = [
       {
         id: 1,
         date: '2025-11-15T14:30:00',
-        doctor: 'Dra. Paula Periquito',
+        doctor: 'Dra. Flavia Novis',
         type: 'Procedimento a Laser',
         status: 'Confirmado',
         location: 'Online',
@@ -340,7 +340,7 @@ export const clients: Client[] = [
       {
         id: 2,
         date: '2025-10-01T11:00:00',
-        doctor: 'Dra. Paula Periquito',
+        doctor: 'Dra. Flavia Novis',
         type: 'Consulta de Rotina',
         status: 'Realizado',
         location: 'Clínica DermApp, Sala 3',
@@ -351,7 +351,7 @@ export const clients: Client[] = [
         id: 1,
         date: '2025-10-18',
         type: 'Exame de Sangue',
-        doctor: 'Dra. Paula Periquito',
+        doctor: 'Dra. Flavia Novis',
         status: 'Disponível',
       },
     ],
@@ -383,7 +383,7 @@ export const clients: Client[] = [
       },
       {
         id: 2,
-        contactName: 'Dra. Paula Periquito',
+        contactName: 'Dra. Flavia Novis',
         contactAvatar: doctor.avatarUrl,
         lastMessage: 'Perfeito, nos vemos lá!',
         timestamp: 'Há 2 dias',
@@ -398,7 +398,7 @@ export const clients: Client[] = [
           },
           {
             id: 2,
-            sender: 'Dra. Paula Periquito',
+            sender: 'Dra. Flavia Novis',
             text: 'Perfeito, nos vemos lá!',
             timestamp: 'Há 2 dias 09:32',
             read: true,
@@ -432,7 +432,7 @@ export const clients: Client[] = [
       {
         id: 1,
         date: '2025-11-05T16:00:00',
-        doctor: 'Dra. Paula Periquito',
+        doctor: 'Dra. Flavia Novis',
         type: 'Avaliação Estética',
         status: 'Confirmado',
         location: 'Clínica DermApp, Sala 3',
@@ -440,7 +440,7 @@ export const clients: Client[] = [
       {
         id: 2,
         date: '2025-10-10T15:00:00',
-        doctor: 'Dra. Paula Periquito',
+        doctor: 'Dra. Flavia Novis',
         type: 'Consulta de Rotina',
         status: 'Realizado',
         location: 'Online',
@@ -451,7 +451,7 @@ export const clients: Client[] = [
         id: 1,
         date: '2025-11-05',
         type: 'Análise de Pele',
-        doctor: 'Dra. Paula Periquito',
+        doctor: 'Dra. Flavia Novis',
         status: 'Em Análise',
       },
     ],
@@ -483,7 +483,7 @@ export const clients: Client[] = [
       },
       {
         id: 2,
-        contactName: 'Dra. Paula Periquito',
+        contactName: 'Dra. Flavia Novis',
         contactAvatar: doctor.avatarUrl,
         lastMessage: 'Sim, pode aplicar o creme que recomendei.',
         timestamp: '14:35',
@@ -498,7 +498,7 @@ export const clients: Client[] = [
           },
           {
             id: 2,
-            sender: 'Dra. Paula Periquito',
+            sender: 'Dra. Flavia Novis',
             text: 'Olá Carla, sim, é uma reação esperada. Sim, pode aplicar o creme que recomendei.',
             timestamp: '14:35',
             read: true,

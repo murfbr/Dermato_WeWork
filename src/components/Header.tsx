@@ -79,7 +79,7 @@ export const Header = () => {
                     alt="Logo"
                     className="h-8 w-8"
                   />
-                  <span>Clinica Paula Periquito</span>
+                  <span>Flavia Novis - clínica integrada</span>
                 </Link>
                 {navItems.map((item) => (
                   <NavLink
@@ -111,7 +111,7 @@ export const Header = () => {
             alt="Logo"
             className="h-8 w-8"
           />
-          <span>Clinica Paula Periquito</span>
+          <span>Flavia Novis - clínica integrada</span>
         </Link>
         <div className="hidden md:flex items-center gap-4 text-sm lg:gap-6">
           {navItems.map((item) => (

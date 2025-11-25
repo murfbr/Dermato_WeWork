@@ -118,7 +118,7 @@ export const ClientCalendar = () => {
                 <strong>Horário:</strong> {selectedTime}
               </p>
               <p>
-                <strong>Médico:</strong> Dra. Paula Periquito
+                <strong>Médico:</strong> Dra. Flavia Novis
               </p>
             </div>
           </div>
