@@ -80,7 +80,7 @@ const ProcedureHistoryCard = ({
                 Ver Antes e Depois
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-3xl">
+            <DialogContent className="max-w-6xl w-[95vw] h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Comparativo: {procedure.name}</DialogTitle>
                 <DialogDescription>
