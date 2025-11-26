@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   Card,
   CardContent,
@@ -19,14 +20,27 @@ import { useClient } from '@/contexts/ClientContext'
 import { PerformedProcedure } from '@/lib/mock-data'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { Stethoscope, Image as ImageIcon, Info } from 'lucide-react'
+import {
+  Stethoscope,
+  Image as ImageIcon,
+  Info,
+  Camera,
+  Plus,
+} from 'lucide-react'
 import { BeforeAfterSlider } from '@/components/BeforeAfterSlider'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useAuth } from '@/contexts/AuthContext'
+import { PhotoUploadDialog } from '@/components/PhotoUploadDialog'
+import { toast } from 'sonner'
 
 const ProcedureHistoryCard = ({
   procedure,
+  role,
+  onManagePhotos,
 }: {
   procedure: PerformedProcedure
+  role: string
+  onManagePhotos: (proc: PerformedProcedure) => void
 }) => {
   const hasImages = procedure.beforeImageUrl && procedure.afterImages.length > 0
 
@@ -57,7 +71,7 @@ const ProcedureHistoryCard = ({
                 : 'Consulta de acompanhamento e cuidados com a pele.'}
         </p>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex flex-col gap-2">
         {hasImages ? (
           <Dialog>
             <DialogTrigger asChild>
@@ -92,13 +106,40 @@ const ProcedureHistoryCard = ({
             Sem comparativo visual
           </Button>
         )}
+
+        {role === 'doctor' && (
+          <Button
+            variant="secondary"
+            className="w-full"
+            onClick={() => onManagePhotos(procedure)}
+          >
+            <Camera className="mr-2 h-4 w-4" />
+            Gerenciar Fotos
+          </Button>
+        )}
       </CardFooter>
     </Card>
   )
 }
 
 export default function Procedimentos() {
-  const { currentClient } = useClient()
+  const { currentClient, addProcedure, updateProcedure } = useClient()
+  const { role } = useAuth()
+  const [selectedProcedure, setSelectedProcedure] =
+    useState<PerformedProcedure | null>(null)
+
+  const handleAddProcedure = () => {
+    if (!currentClient) return
+    const newProcedure: PerformedProcedure = {
+      id: Date.now(),
+      date: new Date().toISOString(),
+      name: 'Rotina',
+      beforeImageUrl: '',
+      afterImages: [],
+    }
+    addProcedure(currentClient.id, newProcedure)
+    toast.success('Novo procedimento adicionado com sucesso!')
+  }
 
   if (!currentClient) {
     return (
@@ -120,19 +161,33 @@ export default function Procedimentos() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl md:text-3xl font-bold">
-          Histórico de Procedimentos
-        </h1>
-        <p className="text-muted-foreground">
-          Veja todos os procedimentos realizados por{' '}
-          {profile.name.split(' ')[0]}.
-        </p>
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold">
+            Histórico de Procedimentos
+          </h1>
+          <p className="text-muted-foreground">
+            Veja todos os procedimentos realizados por{' '}
+            {profile.name.split(' ')[0]}.
+          </p>
+        </div>
+        {role === 'doctor' && (
+          <Button onClick={handleAddProcedure}>
+            <Plus className="mr-2 h-4 w-4" />
+            Novo Procedimento
+          </Button>
+        )}
       </header>
+
       {performedProcedures.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {performedProcedures.map((procedure) => (
-            <ProcedureHistoryCard key={procedure.id} procedure={procedure} />
+            <ProcedureHistoryCard
+              key={procedure.id}
+              procedure={procedure}
+              role={role}
+              onManagePhotos={setSelectedProcedure}
+            />
           ))}
         </div>
       ) : (
@@ -146,6 +201,25 @@ export default function Procedimentos() {
           </p>
         </div>
       )}
+
+      <Dialog
+        open={!!selectedProcedure}
+        onOpenChange={(open) => !open && setSelectedProcedure(null)}
+      >
+        <DialogContent className="max-w-2xl">
+          {selectedProcedure && (
+            <PhotoUploadDialog
+              procedure={selectedProcedure}
+              onSave={(data) => {
+                if (currentClient) {
+                  updateProcedure(currentClient.id, selectedProcedure.id, data)
+                }
+              }}
+              onClose={() => setSelectedProcedure(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
