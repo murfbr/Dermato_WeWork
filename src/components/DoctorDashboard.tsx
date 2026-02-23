@@ -18,12 +18,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Users, Activity, DollarSign, Calendar } from 'lucide-react'
 import { useClient } from '@/contexts/ClientContext'
+import { useAuth } from '@/contexts/AuthContext'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { KeyIndicators } from './KeyIndicators'
 
 export const DoctorDashboard = () => {
   const { clients } = useClient()
+  const { role } = useAuth()
 
   const allAppointments = clients
     .flatMap((client) =>
@@ -37,15 +39,20 @@ export const DoctorDashboard = () => {
     return clients.flatMap((client) => client.performedProcedures)
   }, [clients])
 
+  const title =
+    role === 'admin' ? 'Painel da Administração' : 'Painel do Médico'
+  const description =
+    role === 'admin'
+      ? 'Visão geral gerencial da clínica, faturamento e estatísticas.'
+      : 'Visão geral da clínica e atividades recentes com seus pacientes.'
+
   return (
     <div className="space-y-8">
       <section>
         <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-          Painel do Médico
+          {title}
         </h1>
-        <p className="text-muted-foreground">
-          Visão geral da clínica e atividades recentes.
-        </p>
+        <p className="text-muted-foreground">{description}</p>
       </section>
 
       <section className="grid gap-6 lg:grid-cols-2">
@@ -53,7 +60,7 @@ export const DoctorDashboard = () => {
           <CardHeader>
             <CardTitle>Próximos Agendamentos</CardTitle>
             <CardDescription>
-              Os próximos 5 agendamentos da sua agenda.
+              Os próximos 5 agendamentos na agenda da clínica.
             </CardDescription>
           </CardHeader>
           <CardContent>

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -16,11 +16,24 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogDescription,
+  DialogFooter,
 } from '@/components/ui/dialog'
-import { Microscope, TestTube, Search, FileDown, FileText } from 'lucide-react'
+import {
+  Microscope,
+  TestTube,
+  Search,
+  FileDown,
+  FileText,
+  Plus,
+  Upload,
+} from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { useClient } from '@/contexts/ClientContext'
+import { useAuth } from '@/contexts/AuthContext'
+import { Label } from '@/components/ui/label'
+import { toast } from 'sonner'
+import { Report } from '@/lib/mock-data'
 
 const getIconForType = (type: string) => {
   if (type.toLowerCase().includes('biópsia'))
@@ -31,11 +44,16 @@ const getIconForType = (type: string) => {
 }
 
 export default function Laudos() {
-  const { currentClient } = useClient()
+  const { currentClient, addReport } = useClient()
+  const { role } = useAuth()
   const reports = currentClient?.reports || []
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState('todos')
   const [sortBy, setSortBy] = useState('recentes')
+
+  const [isAddReportOpen, setIsAddReportOpen] = useState(false)
+  const [newReportType, setNewReportType] = useState('')
+  const [isUploading, setIsUploading] = useState(false)
 
   const filteredReports = useMemo(() => {
     return reports
@@ -56,15 +74,93 @@ export default function Laudos() {
       })
   }, [reports, searchTerm, filterType, sortBy])
 
+  const handleAddReport = () => {
+    if (!newReportType || !currentClient) {
+      toast.error('Preencha o tipo de exame.')
+      return
+    }
+
+    setIsUploading(true)
+    setTimeout(() => {
+      const report: Report = {
+        id: Date.now(),
+        date: new Date().toISOString(),
+        type: newReportType,
+        doctor:
+          role === 'client' ? 'Enviado pelo Paciente' : 'Clínica / Dra. Flavia',
+        status: role === 'client' ? 'Em Análise' : 'Disponível',
+      }
+      addReport(currentClient.id, report)
+      setIsUploading(false)
+      setIsAddReportOpen(false)
+      setNewReportType('')
+      toast.success('Laudo adicionado com sucesso!')
+    }, 1500)
+  }
+
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl md:text-3xl font-bold">
-          Laudos de {currentClient?.profile.name}
-        </h1>
-        <p className="text-muted-foreground">
-          Visualize e gerencie os resultados de exames do paciente.
-        </p>
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold">
+            Laudos de {currentClient?.profile.name}
+          </h1>
+          <p className="text-muted-foreground">
+            Visualize e gerencie os resultados de exames do paciente.
+          </p>
+        </div>
+        <Dialog open={isAddReportOpen} onOpenChange={setIsAddReportOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" /> Novo Laudo
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Adicionar Novo Laudo</DialogTitle>
+              <DialogDescription>
+                Faça o upload do resultado de exame.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="reportType">Tipo de Exame</Label>
+                <Input
+                  id="reportType"
+                  placeholder="Ex: Hemograma, Biópsia..."
+                  value={newReportType}
+                  onChange={(e) => setNewReportType(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Arquivo</Label>
+                <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-muted-foreground hover:bg-muted/50 cursor-pointer transition-colors">
+                  <Upload className="h-8 w-8 mb-2" />
+                  <p className="text-sm">
+                    Clique para selecionar ou arraste o arquivo aqui
+                  </p>
+                  <p className="text-xs mt-1 opacity-70">
+                    PDF, JPG ou PNG (Max 5MB)
+                  </p>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setIsAddReportOpen(false)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleAddReport}
+                disabled={isUploading || !newReportType}
+              >
+                {isUploading ? 'Enviando...' : 'Salvar Laudo'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </header>
 
       <Card>
@@ -79,9 +175,9 @@ export default function Laudos() {
               />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             </div>
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger className="w-full md:w-[180px]">
+                <SelectTrigger className="w-full sm:w-[180px]">
                   <SelectValue placeholder="Filtrar por tipo" />
                 </SelectTrigger>
                 <SelectContent>
@@ -96,7 +192,7 @@ export default function Laudos() {
                 </SelectContent>
               </Select>
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-full md:w-[180px]">
+                <SelectTrigger className="w-full sm:w-[180px]">
                   <SelectValue placeholder="Ordenar por" />
                 </SelectTrigger>
                 <SelectContent>
@@ -113,12 +209,12 @@ export default function Laudos() {
               filteredReports.map((report) => (
                 <div
                   key={report.id}
-                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg hover:bg-muted/50 gap-4"
+                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg hover:bg-muted/50 gap-4 transition-colors"
                 >
                   <div className="flex items-center gap-4">
                     {getIconForType(report.type)}
                     <div>
-                      <p className="font-semibold">{report.type}</p>
+                      <p className="font-semibold text-lg">{report.type}</p>
                       <p className="text-sm text-muted-foreground">
                         Data:{' '}
                         {new Date(report.date).toLocaleDateString('pt-BR', {
@@ -128,12 +224,12 @@ export default function Laudos() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                  <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
                     <Badge
                       className={cn({
-                        'bg-success/20 text-success-foreground border-success/20 hover:bg-success/30':
+                        'bg-success/20 text-success-foreground border-success/20':
                           report.status === 'Disponível',
-                        'bg-warning/20 text-warning-foreground border-warning/20 hover:bg-warning/30':
+                        'bg-warning/20 text-warning-foreground border-warning/20':
                           report.status !== 'Disponível',
                       })}
                     >
@@ -161,7 +257,7 @@ export default function Laudos() {
                         </DialogHeader>
                         <div className="py-4 space-y-2">
                           <p className="font-semibold">Resultados:</p>
-                          <div className="p-4 border rounded-md bg-muted/50 text-sm">
+                          <div className="p-4 border rounded-md bg-muted/50 text-sm space-y-2">
                             <p>
                               <strong>Paciente:</strong>{' '}
                               {currentClient?.profile.name}
@@ -180,8 +276,8 @@ export default function Laudos() {
                             </p>
                           </div>
                         </div>
-                        <Button>
-                          <FileDown className="mr-2 h-4 w-4" /> Baixar Laudo
+                        <Button className="w-full sm:w-auto">
+                          <FileDown className="mr-2 h-4 w-4" /> Baixar PDF
                         </Button>
                       </DialogContent>
                     </Dialog>
@@ -189,10 +285,11 @@ export default function Laudos() {
                 </div>
               ))
             ) : (
-              <div className="text-center py-12 text-muted-foreground">
-                <p className="font-semibold">Nenhum laudo encontrado</p>
-                <p className="text-sm">
-                  Tente ajustar os filtros ou o termo de busca.
+              <div className="text-center py-16 border-2 border-dashed rounded-lg text-muted-foreground">
+                <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p className="font-semibold text-lg">Nenhum laudo encontrado</p>
+                <p className="text-sm mt-1">
+                  Tente ajustar os filtros ou adicione um novo laudo.
                 </p>
               </div>
             )}

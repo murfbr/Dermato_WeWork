@@ -5,7 +5,7 @@ import { DoctorCalendar } from '@/components/DoctorCalendar'
 export default function Calendario() {
   const { role } = useAuth()
 
-  if (role === 'doctor') {
+  if (role === 'doctor' || role === 'admin') {
     return <DoctorCalendar />
   }
 

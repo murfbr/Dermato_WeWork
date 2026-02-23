@@ -13,8 +13,11 @@ import { useAuth } from '@/contexts/AuthContext'
 export default function Comunicacao() {
   const { role } = useAuth()
   const { clients, currentClient } = useClient()
+  const isStaff = role === 'doctor' || role === 'admin'
+  const staffName = role === 'admin' ? 'Clínica' : doctor.name
+
   const [selectedClientId, setSelectedClientId] = useState<number | null>(
-    role === 'doctor' ? clients[0]?.id || null : currentClient?.id || null,
+    isStaff ? clients[0]?.id || null : currentClient?.id || null,
   )
   const [selectedConv, setSelectedConv] = useState<Conversation | null>(null)
   const [newMessage, setNewMessage] = useState('')
@@ -34,15 +37,13 @@ export default function Comunicacao() {
     const client = clients.find((c) => c.id === selectedClientId)
     if (!client) return
 
-    if (role === 'doctor') {
-      const conv = client.conversations.find(
-        (c) => c.contactName === doctor.name,
-      )
-      setSelectedConv(conv || null)
+    if (isStaff) {
+      const conv = client.conversations.find((c) => c.contactName === staffName)
+      setSelectedConv(conv || client.conversations[0] || null)
     } else {
       setSelectedConv(client.conversations[0] || null)
     }
-  }, [selectedClientId, clients, role])
+  }, [selectedClientId, clients, isStaff, staffName])
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -55,10 +56,9 @@ export default function Comunicacao() {
     e.preventDefault()
     if (!newMessage.trim() || !selectedConv || !selectedClientId) return
 
-    const senderName =
-      role === 'doctor'
-        ? doctor.name
-        : clients.find((c) => c.id === selectedClientId)?.profile.name || ''
+    const senderName = isStaff
+      ? staffName
+      : clients.find((c) => c.id === selectedClientId)?.profile.name || ''
 
     const newMsg: Message = {
       id: Date.now(),
@@ -84,23 +84,27 @@ export default function Comunicacao() {
   const ChatView = () => {
     if (!selectedConv)
       return (
-        <div className="flex items-center justify-center h-full text-muted-foreground">
-          Selecione uma conversa para começar.
+        <div className="flex items-center justify-center h-full text-muted-foreground bg-muted/20">
+          <div className="text-center">
+            <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-20" />
+            <p>Selecione uma conversa para começar.</p>
+          </div>
         </div>
       )
 
-    const currentUserName =
-      role === 'doctor'
-        ? doctor.name
-        : clients.find((c) => c.id === selectedClientId)?.profile.name
+    const currentUserName = isStaff
+      ? staffName
+      : clients.find((c) => c.id === selectedClientId)?.profile.name
+
     return (
-      <div className="flex flex-col h-full">
-        <header className="flex items-center gap-4 border-b p-4">
+      <div className="flex flex-col h-full bg-background">
+        <header className="flex items-center gap-4 border-b p-4 shadow-sm z-10 bg-card">
           {isMobile && (
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setSelectedConv(null)}
+              className="shrink-0"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
@@ -111,10 +115,19 @@ export default function Comunicacao() {
               {selectedConv.contactName.charAt(0)}
             </AvatarFallback>
           </Avatar>
-          <h2 className="font-semibold">{selectedConv.contactName}</h2>
+          <div className="flex flex-col">
+            <h2 className="font-semibold leading-none">
+              {selectedConv.contactName}
+            </h2>
+            {isStaff && (
+              <span className="text-xs text-muted-foreground mt-1">
+                Paciente
+              </span>
+            )}
+          </div>
         </header>
-        <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-          <div className="space-y-4">
+        <ScrollArea className="flex-1 p-4 bg-muted/10" ref={scrollAreaRef}>
+          <div className="space-y-4 max-w-3xl mx-auto">
             {selectedConv.messages.map((msg) => {
               const isUser = msg.sender === currentUserName
               return (
@@ -126,7 +139,7 @@ export default function Comunicacao() {
                   )}
                 >
                   {!isUser && (
-                    <Avatar className="h-8 w-8">
+                    <Avatar className="h-8 w-8 shrink-0">
                       <AvatarImage src={selectedConv.contactAvatar} />
                       <AvatarFallback>
                         {selectedConv.contactName.charAt(0)}
@@ -135,14 +148,23 @@ export default function Comunicacao() {
                   )}
                   <div
                     className={cn(
-                      'max-w-[75%] rounded-2xl p-3',
+                      'max-w-[85%] sm:max-w-[75%] rounded-2xl p-3 shadow-sm',
                       isUser
                         ? 'bg-primary text-primary-foreground rounded-br-none'
-                        : 'bg-muted rounded-bl-none',
+                        : 'bg-card border rounded-bl-none',
                     )}
                   >
-                    <p>{msg.text}</p>
-                    <p className="text-xs opacity-70 mt-1 text-right">
+                    <p className="text-sm sm:text-base leading-relaxed">
+                      {msg.text}
+                    </p>
+                    <p
+                      className={cn(
+                        'text-[10px] mt-1 text-right',
+                        isUser
+                          ? 'text-primary-foreground/70'
+                          : 'text-muted-foreground',
+                      )}
+                    >
                       {msg.timestamp}
                     </p>
                   </div>
@@ -151,22 +173,33 @@ export default function Comunicacao() {
             })}
           </div>
         </ScrollArea>
-        <footer className="border-t p-4">
-          <form onSubmit={handleSendMessage} className="relative">
+        <footer className="border-t p-4 bg-card">
+          <form
+            onSubmit={handleSendMessage}
+            className="relative max-w-3xl mx-auto flex items-center gap-2"
+          >
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="shrink-0 text-muted-foreground"
+            >
+              <Paperclip className="h-5 w-5" />
+            </Button>
             <Input
               placeholder="Digite sua mensagem..."
-              className="pr-24"
+              className="flex-1 rounded-full px-4"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
             />
-            <div className="absolute inset-y-0 right-0 flex items-center">
-              <Button type="button" variant="ghost" size="icon">
-                <Paperclip className="h-5 w-5" />
-              </Button>
-              <Button type="submit" variant="ghost" size="icon">
-                <Send className="h-5 w-5" />
-              </Button>
-            </div>
+            <Button
+              type="submit"
+              size="icon"
+              className="shrink-0 rounded-full h-10 w-10"
+              disabled={!newMessage.trim()}
+            >
+              <Send className="h-4 w-4 ml-1" />
+            </Button>
           </form>
         </footer>
       </div>
@@ -174,8 +207,9 @@ export default function Comunicacao() {
   }
 
   const ConversationList = () => {
-    const listItems =
-      role === 'doctor' ? filteredClients : currentClient?.conversations || []
+    const listItems = isStaff
+      ? filteredClients
+      : currentClient?.conversations || []
 
     const handleSelect = (item: Client | Conversation) => {
       if ('profile' in item) {
@@ -188,73 +222,102 @@ export default function Comunicacao() {
     }
 
     return (
-      <div className="flex flex-col h-full">
-        <header className="border-b p-4">
-          <h2 className="font-semibold text-lg mb-2">
-            {role === 'doctor' ? 'Pacientes' : 'Conversas'}
+      <div className="flex flex-col h-full bg-card">
+        <header className="border-b p-4 shadow-sm z-10">
+          <h2 className="font-semibold text-lg mb-4">
+            {isStaff ? 'Mensagens (Pacientes)' : 'Conversas'}
           </h2>
-          {role === 'doctor' && (
+          {isStaff && (
             <div className="relative">
               <Input
                 placeholder="Buscar paciente..."
-                className="pl-9"
+                className="pl-9 bg-muted/50 border-transparent focus-visible:border-primary"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-              <Search className="absolute left-2.5 top-2.5 h-5 w-5 text-muted-foreground" />
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             </div>
           )}
         </header>
-        <ScrollArea>
-          {listItems.map((item) => {
-            const isClient = 'profile' in item
-            const id = isClient ? item.id : item.id
-            const avatar = isClient
-              ? item.profile.avatarUrl
-              : item.contactAvatar
-            const name = isClient ? item.profile.name : item.contactName
-            const lastMessage = isClient
-              ? item.conversations.find((c) => c.contactName === doctor.name)
-                  ?.lastMessage
-              : item.lastMessage
-            const timestamp = isClient
-              ? item.conversations.find((c) => c.contactName === doctor.name)
-                  ?.timestamp
-              : item.timestamp
-            const isSelected = isClient
-              ? selectedClientId === id
-              : selectedConv?.id === id
+        <ScrollArea className="flex-1">
+          <div className="p-2 space-y-1">
+            {listItems.map((item) => {
+              const isClient = 'profile' in item
+              const id = isClient ? item.id : item.id
+              const avatar = isClient
+                ? item.profile.avatarUrl
+                : item.contactAvatar
+              const name = isClient ? item.profile.name : item.contactName
+              const lastMessage = isClient
+                ? item.conversations.find((c) => c.contactName === staffName)
+                    ?.lastMessage || item.conversations[0]?.lastMessage
+                : item.lastMessage
+              const timestamp = isClient
+                ? item.conversations.find((c) => c.contactName === staffName)
+                    ?.timestamp || item.conversations[0]?.timestamp
+                : item.timestamp
+              const isSelected = isClient
+                ? selectedClientId === id
+                : selectedConv?.id === id
 
-            return (
-              <div
-                key={id}
-                onClick={() => handleSelect(item)}
-                className={cn(
-                  'flex items-center gap-4 p-4 cursor-pointer hover:bg-muted/50',
-                  isSelected && 'bg-muted',
-                )}
-              >
-                <Avatar>
-                  <AvatarImage src={avatar} />
-                  <AvatarFallback>{name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1 truncate">
-                  <p className="font-semibold">{name}</p>
-                  <p className="text-sm text-muted-foreground truncate">
-                    {lastMessage}
-                  </p>
+              return (
+                <div
+                  key={id}
+                  onClick={() => handleSelect(item)}
+                  className={cn(
+                    'flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-200',
+                    isSelected
+                      ? 'bg-primary text-primary-foreground shadow-md'
+                      : 'hover:bg-muted text-foreground',
+                  )}
+                >
+                  <Avatar
+                    className={cn(
+                      'border-2',
+                      isSelected
+                        ? 'border-primary-foreground/20'
+                        : 'border-transparent',
+                    )}
+                  >
+                    <AvatarImage src={avatar} />
+                    <AvatarFallback>{name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-baseline mb-0.5">
+                      <p className="font-semibold truncate text-sm">{name}</p>
+                      <span
+                        className={cn(
+                          'text-xs shrink-0 ml-2',
+                          isSelected
+                            ? 'text-primary-foreground/70'
+                            : 'text-muted-foreground',
+                        )}
+                      >
+                        {timestamp}
+                      </span>
+                    </div>
+                    <p
+                      className={cn(
+                        'text-xs truncate',
+                        isSelected
+                          ? 'text-primary-foreground/90'
+                          : 'text-muted-foreground',
+                      )}
+                    >
+                      {lastMessage}
+                    </p>
+                  </div>
                 </div>
-                <div className="text-xs text-muted-foreground">{timestamp}</div>
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
         </ScrollArea>
       </div>
     )
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] h-[calc(100vh-8rem)] border rounded-lg overflow-hidden">
+    <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] h-[calc(100vh-8rem)] border rounded-xl overflow-hidden shadow-sm bg-background">
       {isMobile ? (
         selectedConv ? (
           <ChatView />
@@ -263,10 +326,10 @@ export default function Comunicacao() {
         )
       ) : (
         <>
-          <div className="border-r">
+          <div className="border-r bg-card">
             <ConversationList />
           </div>
-          <div>
+          <div className="bg-background">
             <ChatView />
           </div>
         </>
@@ -274,3 +337,6 @@ export default function Comunicacao() {
     </div>
   )
 }
+
+// Add MessageSquare for empty state
+import { MessageSquare } from 'lucide-react'

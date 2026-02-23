@@ -12,6 +12,7 @@ import Comunicacao from './pages/Comunicacao'
 import Laudos from './pages/Laudos'
 import Calendario from './pages/Calendario'
 import Perfil from './pages/Perfil'
+import Configuracoes from './pages/Configuracoes'
 import NotFound from './pages/NotFound'
 import { ClientProvider } from './contexts/ClientContext'
 import { AuthProvider } from './contexts/AuthContext'
@@ -33,6 +34,7 @@ const App = () => (
               <Route path="/procedimentos" element={<Procedimentos />} />
               <Route path="/calendario" element={<Calendario />} />
               <Route path="/perfil" element={<Perfil />} />
+              <Route path="/configuracoes" element={<Configuracoes />} />
             </Route>
 
             {/* Authentication Routes */}

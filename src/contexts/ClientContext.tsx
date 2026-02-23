@@ -3,6 +3,10 @@ import {
   clients as mockClients,
   Client,
   PerformedProcedure,
+  procedures as mockProcedures,
+  Procedure,
+  Report,
+  Notification,
 } from '@/lib/mock-data'
 
 interface ClientContextType {
@@ -15,6 +19,10 @@ interface ClientContextType {
     procedureId: number,
     data: Partial<PerformedProcedure>,
   ) => void
+  proceduresConfig: Procedure[]
+  updateProcedureConfig: (id: string, delayDays: number) => void
+  addReport: (clientId: number, report: Report) => void
+  addNotification: (clientId: number, notification: Notification) => void
 }
 
 const ClientContext = createContext<ClientContextType | undefined>(undefined)
@@ -24,6 +32,8 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
   const [currentClient, setCurrentClient] = useState<Client | null>(
     clients[0] || null,
   )
+  const [proceduresConfig, setProceduresConfig] =
+    useState<Procedure[]>(mockProcedures)
 
   const updateCurrentClient = (updatedClients: Client[]) => {
     if (currentClient) {
@@ -69,12 +79,50 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     updateCurrentClient(updatedClients)
   }
 
+  const updateProcedureConfig = (id: string, delayDays: number) => {
+    setProceduresConfig((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, delayDays } : p)),
+    )
+  }
+
+  const addReport = (clientId: number, report: Report) => {
+    const updatedClients = clients.map((client) => {
+      if (client.id === clientId) {
+        return {
+          ...client,
+          reports: [report, ...client.reports],
+        }
+      }
+      return client
+    })
+    setClients(updatedClients)
+    updateCurrentClient(updatedClients)
+  }
+
+  const addNotification = (clientId: number, notification: Notification) => {
+    const updatedClients = clients.map((client) => {
+      if (client.id === clientId) {
+        return {
+          ...client,
+          notifications: [notification, ...client.notifications],
+        }
+      }
+      return client
+    })
+    setClients(updatedClients)
+    updateCurrentClient(updatedClients)
+  }
+
   const value = {
     clients,
     currentClient,
     setCurrentClient,
     addProcedure,
     updateProcedure,
+    proceduresConfig,
+    updateProcedureConfig,
+    addReport,
+    addNotification,
   }
 
   return (

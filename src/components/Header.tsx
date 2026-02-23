@@ -20,22 +20,64 @@ import {
   Stethoscope,
   Calendar,
   User,
-  Repeat,
+  Settings,
+  LogOut,
 } from 'lucide-react'
 import { NotificationsSheet } from '@/components/NotificationsSheet'
 import { doctor } from '@/lib/mock-data'
 import { useClient } from '@/contexts/ClientContext'
 import { useAuth } from '@/contexts/AuthContext'
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+} from '@/components/ui/sheet'
 import { cn } from '@/lib/utils'
 
 const navItems = [
-  { to: '/', label: 'Dashboard', icon: Home },
-  { to: '/comunicacao', label: 'Comunicação', icon: MessageSquare },
-  { to: '/laudos', label: 'Laudos', icon: FileText },
-  { to: '/procedimentos', label: 'Procedimentos', icon: Stethoscope },
-  { to: '/calendario', label: 'Calendário', icon: Calendar },
-  { to: '/perfil', label: 'Perfil', icon: User },
+  {
+    to: '/',
+    label: 'Dashboard',
+    icon: Home,
+    roles: ['doctor', 'client', 'admin'],
+  },
+  {
+    to: '/comunicacao',
+    label: 'Comunicação',
+    icon: MessageSquare,
+    roles: ['doctor', 'client', 'admin'],
+  },
+  {
+    to: '/laudos',
+    label: 'Laudos',
+    icon: FileText,
+    roles: ['doctor', 'client', 'admin'],
+  },
+  {
+    to: '/procedimentos',
+    label: 'Procedimentos',
+    icon: Stethoscope,
+    roles: ['doctor', 'client', 'admin'],
+  },
+  {
+    to: '/calendario',
+    label: 'Calendário',
+    icon: Calendar,
+    roles: ['doctor', 'client', 'admin'],
+  },
+  {
+    to: '/perfil',
+    label: 'Perfil',
+    icon: User,
+    roles: ['doctor', 'client', 'admin'],
+  },
+  {
+    to: '/configuracoes',
+    label: 'Configurações',
+    icon: Settings,
+    roles: ['admin'],
+  },
 ]
 
 export const Header = () => {
@@ -46,17 +88,32 @@ export const Header = () => {
     .split(' ')
     .map((n) => n[0])
     .join('')
+  const adminAvatar =
+    'https://img.usecurling.com/i?q=clinic&color=azure&shape=outline'
 
   const userAvatar =
-    role === 'doctor' ? doctor.avatarUrl : currentClient?.profile.avatarUrl
-  const userName = role === 'doctor' ? doctor.name : currentClient?.profile.name
+    role === 'admin'
+      ? adminAvatar
+      : role === 'doctor'
+        ? doctor.avatarUrl
+        : currentClient?.profile.avatarUrl
+  const userName =
+    role === 'admin'
+      ? 'Administração'
+      : role === 'doctor'
+        ? doctor.name
+        : currentClient?.profile.name
   const userInitials =
-    role === 'doctor'
-      ? doctorInitials
-      : currentClient?.profile.name
-          .split(' ')
-          .map((n) => n[0])
-          .join('')
+    role === 'admin'
+      ? 'ADM'
+      : role === 'doctor'
+        ? doctorInitials
+        : currentClient?.profile.name
+            .split(' ')
+            .map((n) => n[0])
+            .join('')
+
+  const filteredNav = navItems.filter((item) => item.roles.includes(role))
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-card px-4 md:px-6 shadow-subtle">
@@ -69,6 +126,7 @@ export const Header = () => {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="flex flex-col">
+              <SheetTitle className="sr-only">Menu de Navegação</SheetTitle>
               <nav className="grid gap-2 text-lg font-medium">
                 <Link
                   to="/"
@@ -81,7 +139,7 @@ export const Header = () => {
                   />
                   <span>Flavia Novis - clínica integrada</span>
                 </Link>
-                {navItems.map((item) => (
+                {filteredNav.map((item) => (
                   <NavLink
                     key={item.to}
                     to={item.to}
@@ -114,20 +172,21 @@ export const Header = () => {
           <span>Flavia Novis - clínica integrada</span>
         </Link>
         <div className="hidden md:flex items-center gap-4 text-sm lg:gap-6">
-          {navItems.map((item) => (
+          {filteredNav.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               end
               className={({ isActive }) =>
                 cn(
-                  'transition-colors hover:text-foreground',
+                  'flex items-center gap-2 transition-colors hover:text-foreground',
                   isActive
                     ? 'text-foreground font-semibold'
                     : 'text-muted-foreground',
                 )
               }
             >
+              <item.icon className="h-4 w-4" />
               {item.label}
             </NavLink>
           ))}
@@ -135,7 +194,7 @@ export const Header = () => {
       </nav>
 
       <div className="ml-auto flex items-center gap-2 md:gap-4">
-        {role === 'doctor' && (
+        {role !== 'client' && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-2">
@@ -182,16 +241,29 @@ export const Header = () => {
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>{userName}</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => setRole(role === 'doctor' ? 'client' : 'doctor')}
+            <DropdownMenuLabel className="text-xs text-muted-foreground">
+              Alternar Perfil
+            </DropdownMenuLabel>
+            <DropdownMenuRadioGroup
+              value={role}
+              onValueChange={(r: any) => setRole(r)}
             >
-              <Repeat className="mr-2 h-4 w-4" />
-              Mudar para visão de {role === 'doctor' ? 'Paciente' : 'Médico'}
-            </DropdownMenuItem>
-            <DropdownMenuItem>Configurações</DropdownMenuItem>
+              <DropdownMenuRadioItem value="admin">
+                Administração
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="doctor">
+                Médico
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="client">
+                Paciente
+              </DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link to="/login">Sair</Link>
+              <Link to="/login" className="flex items-center">
+                <LogOut className="mr-2 h-4 w-4" />
+                Sair
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

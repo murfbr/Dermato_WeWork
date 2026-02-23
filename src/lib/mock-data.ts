@@ -92,6 +92,7 @@ export interface Procedure {
   name: string
   description: string
   imageUrl: string
+  delayDays: number
 }
 
 export const procedures: Procedure[] = [
@@ -101,6 +102,7 @@ export const procedures: Procedure[] = [
     description:
       'Aplicação de toxina botulínica para suavizar rugas e linhas de expressão.',
     imageUrl: 'https://img.usecurling.com/p/400/300?q=botox%20injection',
+    delayDays: 30,
   },
   {
     id: 'preenchimento',
@@ -108,6 +110,7 @@ export const procedures: Procedure[] = [
     description:
       'Uso de ácido hialurônico para restaurar volume e contorno facial.',
     imageUrl: 'https://img.usecurling.com/p/400/300?q=facial%20filler',
+    delayDays: 15,
   },
   {
     id: 'rotina',
@@ -115,6 +118,7 @@ export const procedures: Procedure[] = [
     description:
       'Consultas regulares para acompanhamento da saúde da pele e prevenção.',
     imageUrl: 'https://img.usecurling.com/p/400/300?q=skincare%20routine',
+    delayDays: 0,
   },
   {
     id: 'lifting',
@@ -122,6 +126,7 @@ export const procedures: Procedure[] = [
     description:
       'Procedimentos para combater a flacidez e promover o rejuvenescimento da pele.',
     imageUrl: 'https://img.usecurling.com/p/400/300?q=face%20lifting',
+    delayDays: 45,
   },
 ]
 

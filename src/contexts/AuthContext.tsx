@@ -1,6 +1,6 @@
 import { createContext, useState, useContext, ReactNode, useMemo } from 'react'
 
-type Role = 'doctor' | 'client'
+type Role = 'doctor' | 'client' | 'admin'
 
 interface AuthContextType {
   role: Role

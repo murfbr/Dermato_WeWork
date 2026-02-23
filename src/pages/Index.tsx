@@ -5,7 +5,7 @@ import { DoctorDashboard } from '@/components/DoctorDashboard'
 const Dashboard = () => {
   const { role } = useAuth()
 
-  if (role === 'doctor') {
+  if (role === 'doctor' || role === 'admin') {
     return <DoctorDashboard />
   }
 
