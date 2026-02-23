@@ -16,7 +16,7 @@ import {
   eachDayOfInterval,
 } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { Clock, Settings, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Clock, Plus, ChevronLeft, ChevronRight } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -29,13 +29,19 @@ import {
 import { useClient } from '@/contexts/ClientContext'
 import { Appointment } from '@/lib/mock-data'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import { toast } from '@/hooks/use-toast'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 type AppointmentWithClient = Appointment & {
   client: { name: string; avatarUrl: string }
@@ -44,10 +50,20 @@ type AppointmentWithClient = Appointment & {
 type View = 'month' | 'week' | 'day'
 
 export const DoctorCalendar = () => {
-  const { clients } = useClient()
+  const { clients, addAppointment } = useClient()
   const [date, setDate] = useState<Date>(new Date())
   const [view, setView] = useState<View>('month')
   const [blockAllDay, setBlockAllDay] = useState(false)
+
+  const [selectedAppt, setSelectedAppt] =
+    useState<AppointmentWithClient | null>(null)
+  const [isAddOpen, setIsAddOpen] = useState(false)
+  const [newApptData, setNewApptData] = useState({
+    clientId: '',
+    date: format(new Date(), 'yyyy-MM-dd'),
+    time: '10:00',
+    type: 'Consulta de Rotina',
+  })
 
   const allAppointments = useMemo(() => {
     const appointments: AppointmentWithClient[] = []
@@ -74,6 +90,31 @@ export const DoctorCalendar = () => {
     })
   }
 
+  const handleAddAppt = () => {
+    const { clientId, date, time, type } = newApptData
+    if (!clientId || !date || !time) return
+
+    const [hours, minutes] = time.split(':')
+    const apptDate = new Date(date)
+    apptDate.setHours(parseInt(hours), parseInt(minutes))
+
+    const newAppointment: Appointment = {
+      id: Date.now(),
+      date: apptDate.toISOString(),
+      doctor: 'Dra. Flavia Novis',
+      type,
+      status: 'Confirmado',
+      location: 'Clínica DermApp',
+    }
+
+    addAppointment(parseInt(clientId), newAppointment)
+    setIsAddOpen(false)
+    toast({
+      title: 'Sucesso',
+      description: 'Agendamento criado com sucesso.',
+    })
+  }
+
   const weekDays = eachDayOfInterval({
     start: startOfWeek(date, { locale: ptBR }),
     end: addDays(startOfWeek(date, { locale: ptBR }), 6),
@@ -89,7 +130,8 @@ export const DoctorCalendar = () => {
           appointments.map((a) => (
             <div
               key={a.id}
-              className="flex items-center gap-2 p-2 border rounded-lg text-sm"
+              onClick={() => setSelectedAppt(a)}
+              className="flex items-center gap-2 p-2 border rounded-lg text-sm cursor-pointer hover:bg-muted/50 transition-colors"
             >
               <div className="font-semibold">
                 {format(new Date(a.date), 'HH:mm')}
@@ -231,29 +273,99 @@ export const DoctorCalendar = () => {
             <ToggleGroupItem value="week">Semana</ToggleGroupItem>
             <ToggleGroupItem value="day">Dia</ToggleGroupItem>
           </ToggleGroup>
+
+          <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+            <DialogTrigger asChild>
+              <Button variant="default">
+                <Plus className="mr-2 h-4 w-4" />
+                Agendar
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Novo Agendamento</DialogTitle>
+                <DialogDescription>
+                  Adicione um novo evento na agenda da clínica.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="space-y-2">
+                  <Label>Paciente</Label>
+                  <Select
+                    value={newApptData.clientId}
+                    onValueChange={(v) =>
+                      setNewApptData({ ...newApptData, clientId: v })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o paciente" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {clients.map((c) => (
+                        <SelectItem key={c.id} value={c.id.toString()}>
+                          {c.profile.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Tipo de Consulta</Label>
+                  <Select
+                    value={newApptData.type}
+                    onValueChange={(v) =>
+                      setNewApptData({ ...newApptData, type: v })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Consulta de Rotina">
+                        Consulta de Rotina
+                      </SelectItem>
+                      <SelectItem value="Avaliação de Procedimento">
+                        Avaliação de Procedimento
+                      </SelectItem>
+                      <SelectItem value="Retorno">Retorno</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Data</Label>
+                    <Input
+                      type="date"
+                      value={newApptData.date}
+                      onChange={(e) =>
+                        setNewApptData({ ...newApptData, date: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Hora</Label>
+                    <Input
+                      type="time"
+                      value={newApptData.time}
+                      onChange={(e) =>
+                        setNewApptData({ ...newApptData, time: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsAddOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button onClick={handleAddAppt}>Confirmar</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="outline">
-                <Settings className="mr-2 h-4 w-4" />
-                Disponibilidade
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Configurar Disponibilidade</DialogTitle>
-                <DialogDescription>
-                  Defina seus horários de atendimento por tipo de procedimento.
-                </DialogDescription>
-              </DialogHeader>
-              <p className="text-sm text-center p-8 text-muted-foreground">
-                Funcionalidade de configuração de disponibilidade em
-                desenvolvimento.
-              </p>
-            </DialogContent>
-          </Dialog>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button>
                 <Clock className="mr-2 h-4 w-4" />
                 Bloquear Horário
               </Button>
@@ -316,6 +428,66 @@ export const DoctorCalendar = () => {
         </div>
       </header>
       {renderView()}
+
+      <Dialog
+        open={!!selectedAppt}
+        onOpenChange={(open) => !open && setSelectedAppt(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Detalhes do Agendamento</DialogTitle>
+          </DialogHeader>
+          {selectedAppt && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <Avatar className="h-12 w-12 border">
+                  <AvatarImage src={selectedAppt.client.avatarUrl} />
+                  <AvatarFallback>
+                    {selectedAppt.client.name.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-semibold text-lg">
+                    {selectedAppt.client.name}
+                  </p>
+                  <p className="text-sm text-muted-foreground">Paciente</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 bg-muted/30 p-4 rounded-lg">
+                <div>
+                  <p className="text-sm text-muted-foreground font-medium">
+                    Procedimento
+                  </p>
+                  <p>{selectedAppt.type}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground font-medium">
+                    Data e Hora
+                  </p>
+                  <p>
+                    {format(
+                      new Date(selectedAppt.date),
+                      "dd/MM/yyyy 'às' HH:mm",
+                    )}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground font-medium">
+                    Status
+                  </p>
+                  <p>{selectedAppt.status}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground font-medium">
+                    Local
+                  </p>
+                  <p>{selectedAppt.location}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

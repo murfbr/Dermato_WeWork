@@ -102,6 +102,7 @@ const ProcedureHistoryCard = ({
               <BeforeAfterSlider
                 beforeImage={procedure.beforeImageUrl}
                 afterImages={procedure.afterImages}
+                procedureDate={procedure.date}
               />
             </DialogContent>
           </Dialog>
@@ -157,7 +158,6 @@ export default function Procedimentos() {
     }
     addProcedure(currentClient.id, newProcedure)
 
-    // Check delay for automated notification
     const config = proceduresConfig.find((p) => p.name === newProcedureName)
     if (config && config.delayDays > 0) {
       addNotification(currentClient.id, {

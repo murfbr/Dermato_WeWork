@@ -1,40 +1,46 @@
-import { useState, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { Slider } from '@/components/ui/slider'
 import { AfterImage } from '@/lib/mock-data'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { cn } from '@/lib/utils'
 import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-  type CarouselApi,
-} from '@/components/ui/carousel'
-import { Card } from '@/components/ui/card'
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Label } from '@/components/ui/label'
 
 interface BeforeAfterSliderProps {
   beforeImage: string
   afterImages: AfterImage[]
+  procedureDate?: string
 }
 
 export const BeforeAfterSlider = ({
   beforeImage,
   afterImages,
+  procedureDate = new Date().toISOString(),
 }: BeforeAfterSliderProps) => {
   const [sliderValue, setSliderValue] = useState(50)
-  const [currentAfterIndex, setCurrentAfterIndex] = useState(0)
-  const [api, setApi] = useState<CarouselApi>()
 
-  useEffect(() => {
-    if (!api) {
-      return
-    }
-    api.scrollTo(currentAfterIndex)
-  }, [api, currentAfterIndex])
+  const timelineImages = useMemo(() => {
+    const list = [
+      { url: beforeImage, date: procedureDate, label: 'Original' },
+      ...afterImages.map((img) => ({ ...img, label: 'Evolução' })),
+    ]
+    return list.sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    )
+  }, [beforeImage, procedureDate, afterImages])
 
-  if (!beforeImage || afterImages.length === 0) {
+  const [leftIndex, setLeftIndex] = useState(0)
+  const [rightIndex, setRightIndex] = useState(
+    timelineImages.length > 1 ? timelineImages.length - 1 : 0,
+  )
+
+  if (!beforeImage && afterImages.length === 0) {
     return (
       <div className="flex items-center justify-center h-96 bg-muted rounded-lg border-2 border-dashed">
         <p className="text-muted-foreground text-lg">
@@ -44,19 +50,58 @@ export const BeforeAfterSlider = ({
     )
   }
 
-  const currentAfterImage = afterImages[currentAfterIndex]
+  const leftImage = timelineImages[leftIndex]
+  const rightImage = timelineImages[rightIndex]
 
   return (
-    <div className="w-full space-y-8">
-      {/* Main Comparison Area - Larger */}
-      <div className="relative w-full h-[50vh] md:h-[65vh] rounded-xl overflow-hidden group shadow-2xl border bg-muted select-none">
+    <div className="w-full space-y-6">
+      <div className="flex flex-col sm:flex-row gap-4 bg-muted/30 p-4 rounded-xl border">
+        <div className="flex-1 space-y-2">
+          <Label>Imagem Esquerda (Antes)</Label>
+          <Select
+            value={leftIndex.toString()}
+            onValueChange={(v) => setLeftIndex(parseInt(v))}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {timelineImages.map((img, idx) => (
+                <SelectItem key={idx} value={idx.toString()}>
+                  {format(new Date(img.date), 'dd/MM/yyyy')} - {img.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex-1 space-y-2">
+          <Label>Imagem Direita (Depois)</Label>
+          <Select
+            value={rightIndex.toString()}
+            onValueChange={(v) => setRightIndex(parseInt(v))}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {timelineImages.map((img, idx) => (
+                <SelectItem key={idx} value={idx.toString()}>
+                  {format(new Date(img.date), 'dd/MM/yyyy')} - {img.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="relative w-full h-[50vh] md:h-[60vh] rounded-xl overflow-hidden group shadow-xl border bg-muted select-none">
         <img
-          src={beforeImage}
+          src={leftImage?.url}
           alt="Antes"
           className="absolute inset-0 w-full h-full object-cover pointer-events-none"
         />
         <img
-          src={currentAfterImage.url}
+          src={rightImage?.url}
           alt="Depois"
           className="absolute inset-0 w-full h-full object-cover pointer-events-none"
           style={{
@@ -64,7 +109,6 @@ export const BeforeAfterSlider = ({
           }}
         />
 
-        {/* Slider Handle Line */}
         <div
           className="absolute inset-y-0 bg-white w-1 cursor-ew-resize z-10 shadow-[0_0_10px_rgba(0,0,0,0.5)]"
           style={{ left: `calc(${sliderValue}% - 2px)` }}
@@ -77,80 +121,21 @@ export const BeforeAfterSlider = ({
           </div>
         </div>
 
-        {/* Labels overlay */}
         <div className="absolute top-6 left-6 bg-black/60 text-white px-3 py-1.5 rounded-md text-sm font-semibold pointer-events-none backdrop-blur-md border border-white/10">
-          Antes
+          {leftImage?.label} (
+          {leftImage && format(new Date(leftImage.date), 'dd/MM/yy')})
         </div>
         <div className="absolute top-6 right-6 bg-black/60 text-white px-3 py-1.5 rounded-md text-sm font-semibold pointer-events-none backdrop-blur-md border border-white/10">
-          Depois ({format(new Date(currentAfterImage.date), 'dd/MM/yyyy')})
+          {rightImage?.label} (
+          {rightImage && format(new Date(rightImage.date), 'dd/MM/yy')})
         </div>
       </div>
 
       <Slider
         value={[sliderValue]}
         onValueChange={(value) => setSliderValue(value[0])}
-        className="mt-6 w-full max-w-3xl mx-auto"
+        className="pt-4 w-full max-w-2xl mx-auto"
       />
-
-      {/* Navigation Bar */}
-      <Card className="p-6 bg-card/50 backdrop-blur-sm">
-        <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
-          <div>
-            <h3 className="text-lg font-semibold">Linha do Tempo</h3>
-            <p className="text-sm text-muted-foreground">
-              Selecione uma data para comparar a evolução do tratamento.
-            </p>
-          </div>
-          <div className="text-sm font-medium bg-primary/10 text-primary px-3 py-1 rounded-full">
-            {currentAfterIndex + 1} de {afterImages.length} registros
-          </div>
-        </div>
-
-        <div className="flex justify-center px-8">
-          <Carousel
-            setApi={setApi}
-            className="w-full max-w-2xl"
-            opts={{
-              align: 'start',
-              loop: false,
-            }}
-          >
-            <CarouselContent className="-ml-4">
-              {afterImages.map((img, idx) => (
-                <CarouselItem key={idx} className="pl-4 basis-1/2 md:basis-1/3">
-                  <button
-                    onClick={() => setCurrentAfterIndex(idx)}
-                    className={cn(
-                      'relative w-full aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200 group',
-                      currentAfterIndex === idx
-                        ? 'border-primary ring-4 ring-primary/10 scale-105 z-10 shadow-lg'
-                        : 'border-transparent opacity-70 hover:opacity-100 hover:scale-105',
-                    )}
-                  >
-                    <img
-                      src={img.url}
-                      alt={`Registro de ${format(new Date(img.date), 'dd/MM')}`}
-                      className="h-full w-full object-cover"
-                    />
-                    <div
-                      className={cn(
-                        'absolute inset-x-0 bottom-0 p-2 text-xs font-medium text-white text-center transition-colors',
-                        currentAfterIndex === idx
-                          ? 'bg-primary'
-                          : 'bg-black/60',
-                      )}
-                    >
-                      {format(new Date(img.date), 'dd/MM/yyyy')}
-                    </div>
-                  </button>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="-left-12 h-10 w-10" />
-            <CarouselNext className="-right-12 h-10 w-10" />
-          </Carousel>
-        </div>
-      </Card>
     </div>
   )
 }

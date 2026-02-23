@@ -52,6 +52,7 @@ export interface Message {
   text: string
   timestamp: string
   read: boolean
+  attachment?: string
 }
 
 export interface Conversation {

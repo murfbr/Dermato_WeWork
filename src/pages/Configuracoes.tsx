@@ -22,7 +22,7 @@ export default function Configuracoes() {
     proceduresConfig.reduce((acc, p) => ({ ...acc, [p.id]: p.delayDays }), {}),
   )
 
-  if (role !== 'admin') {
+  if (role === 'client') {
     return <Navigate to="/" replace />
   }
 

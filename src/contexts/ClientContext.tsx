@@ -7,6 +7,8 @@ import {
   Procedure,
   Report,
   Notification,
+  Appointment,
+  Message,
 } from '@/lib/mock-data'
 
 interface ClientContextType {
@@ -23,6 +25,9 @@ interface ClientContextType {
   updateProcedureConfig: (id: string, delayDays: number) => void
   addReport: (clientId: number, report: Report) => void
   addNotification: (clientId: number, notification: Notification) => void
+  addAppointment: (clientId: number, appointment: Appointment) => void
+  addMessage: (clientId: number, convId: number, message: Message) => void
+  registerClient: (clientData: any) => void
 }
 
 const ClientContext = createContext<ClientContextType | undefined>(undefined)
@@ -113,6 +118,88 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     updateCurrentClient(updatedClients)
   }
 
+  const addAppointment = (clientId: number, appointment: Appointment) => {
+    const updatedClients = clients.map((client) => {
+      if (client.id === clientId) {
+        return {
+          ...client,
+          appointments: [...client.appointments, appointment].sort(
+            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+          ),
+        }
+      }
+      return client
+    })
+    setClients(updatedClients)
+    updateCurrentClient(updatedClients)
+  }
+
+  const addMessage = (clientId: number, convId: number, message: Message) => {
+    const updatedClients = clients.map((client) => {
+      if (client.id === clientId) {
+        return {
+          ...client,
+          conversations: client.conversations.map((c) =>
+            c.id === convId
+              ? {
+                  ...c,
+                  messages: [...c.messages, message],
+                  lastMessage: message.text,
+                  timestamp: message.timestamp,
+                }
+              : c,
+          ),
+        }
+      }
+      return client
+    })
+    setClients(updatedClients)
+    updateCurrentClient(updatedClients)
+  }
+
+  const registerClient = (clientData: any) => {
+    const newClient: Client = {
+      id: Date.now(),
+      profile: {
+        name: clientData.fullName,
+        email: clientData.email,
+        phone: clientData.phone,
+        dob: clientData.dob,
+        cpf: clientData.cpf,
+        address: '',
+        avatarUrl: `https://img.usecurling.com/ppl/medium?seed=${Date.now()}`,
+      },
+      notifications: [],
+      appointments: [],
+      reports: [],
+      conversations: [
+        {
+          id: 1,
+          contactName: 'Clínica',
+          contactAvatar:
+            'https://img.usecurling.com/i?q=clinic&color=azure&shape=outline',
+          lastMessage: 'Bem-vindo(a) à clínica!',
+          timestamp: 'Agora',
+          unreadCount: 0,
+          messages: [
+            {
+              id: 1,
+              sender: 'Clínica',
+              text: 'Bem-vindo(a) à Clínica DermApp! Estamos felizes em tê-lo(a) conosco.',
+              timestamp: new Date().toLocaleTimeString('pt-BR', {
+                hour: '2-digit',
+                minute: '2-digit',
+              }),
+              read: true,
+            },
+          ],
+        },
+      ],
+      performedProcedures: [],
+    }
+    setClients([...clients, newClient])
+  }
+
   const value = {
     clients,
     currentClient,
@@ -123,6 +210,9 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     updateProcedureConfig,
     addReport,
     addNotification,
+    addAppointment,
+    addMessage,
+    registerClient,
   }
 
   return (

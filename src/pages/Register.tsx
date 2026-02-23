@@ -19,6 +19,8 @@ import {
   CardDescription,
 } from '@/components/ui/card'
 import { Link, useNavigate } from 'react-router-dom'
+import { useClient } from '@/contexts/ClientContext'
+import { toast } from 'sonner'
 
 const registerSchema = z
   .object({
@@ -41,6 +43,8 @@ type RegisterFormValues = z.infer<typeof registerSchema>
 
 export default function Register() {
   const navigate = useNavigate()
+  const { registerClient } = useClient()
+
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -55,8 +59,9 @@ export default function Register() {
   })
 
   const onSubmit = (data: RegisterFormValues) => {
-    console.log('Register data:', data)
-    navigate('/')
+    registerClient(data)
+    toast.success('Conta criada com sucesso! Você já pode fazer login.')
+    navigate('/login')
   }
 
   return (

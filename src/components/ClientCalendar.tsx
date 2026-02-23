@@ -24,21 +24,40 @@ import {
 import { useClient } from '@/contexts/ClientContext'
 import { Label } from '@/components/ui/label'
 import { toast } from '@/hooks/use-toast'
+import { Appointment } from '@/lib/mock-data'
 
 export const ClientCalendar = () => {
-  const { currentClient } = useClient()
+  const { currentClient, addAppointment } = useClient()
   const appointments = currentClient?.appointments || []
   const [date, setDate] = useState<Date | undefined>(new Date())
   const [selectedTime, setSelectedTime] = useState<string>('')
+  const [selectedType, setSelectedType] = useState<string>('Consulta de Rotina')
   const [step, setStep] = useState(1)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const availableTimes = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00']
 
   const handleNewAppointment = () => {
+    if (!currentClient || !date || !selectedTime) return
+
+    const [hours, minutes] = selectedTime.split(':')
+    const apptDate = new Date(date)
+    apptDate.setHours(parseInt(hours), parseInt(minutes))
+
+    const newAppointment: Appointment = {
+      id: Date.now(),
+      date: apptDate.toISOString(),
+      doctor: 'Dra. Flavia Novis',
+      type: selectedType,
+      status: 'Confirmado',
+      location: 'Clínica DermApp',
+    }
+
+    addAppointment(currentClient.id, newAppointment)
+
     toast({
       title: 'Agendamento Confirmado!',
-      description: `Sua consulta de rotina foi agendada para ${date?.toLocaleDateString(
+      description: `Sua ${selectedType} foi agendada para ${date.toLocaleDateString(
         'pt-BR',
       )} às ${selectedTime}.`,
       variant: 'default',
@@ -61,16 +80,18 @@ export const ClientCalendar = () => {
             <div className="space-y-4 mt-4">
               <div>
                 <Label>Serviço</Label>
-                <Select defaultValue="rotina">
+                <Select value={selectedType} onValueChange={setSelectedType}>
                   <SelectTrigger>
                     <SelectValue placeholder="Tipo de Consulta" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="rotina">Consulta de Rotina</SelectItem>
-                    <SelectItem value="procedimento">
+                    <SelectItem value="Consulta de Rotina">
+                      Consulta de Rotina
+                    </SelectItem>
+                    <SelectItem value="Avaliação de Procedimento">
                       Avaliação de Procedimento
                     </SelectItem>
-                    <SelectItem value="retorno">Retorno</SelectItem>
+                    <SelectItem value="Retorno">Retorno</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -108,7 +129,7 @@ export const ClientCalendar = () => {
             </DialogDescription>
             <div className="mt-4 space-y-2 text-sm p-4 bg-muted rounded-lg">
               <p>
-                <strong>Serviço:</strong> Consulta de Rotina
+                <strong>Serviço:</strong> {selectedType}
               </p>
               <p>
                 <strong>Data:</strong>{' '}
@@ -157,23 +178,27 @@ export const ClientCalendar = () => {
             <CardTitle>Seus Agendamentos</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {appointments.map((a) => (
-              <div key={a.id} className="p-4 border rounded-lg">
-                <p className="font-semibold">
-                  {a.type} com {a.doctor}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {format(new Date(a.date), 'PPPPp', { locale: ptBR })} -{' '}
-                  {a.status}
-                </p>
-              </div>
-            ))}
+            {appointments.length > 0 ? (
+              appointments.map((a) => (
+                <div key={a.id} className="p-4 border rounded-lg">
+                  <p className="font-semibold">
+                    {a.type} com {a.doctor}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {format(new Date(a.date), 'PPPPp', { locale: ptBR })} -{' '}
+                    {a.status}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p className="text-muted-foreground">Nenhum agendamento.</p>
+            )}
           </CardContent>
         </Card>
       </div>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
-          <Button className="fixed bottom-20 right-6 md:bottom-8 md:right-8 h-16 w-16 rounded-full shadow-lg">
+          <Button className="fixed bottom-20 right-6 md:bottom-8 md:right-8 h-16 w-16 rounded-full shadow-lg hover:scale-105 transition-transform">
             <Plus className="h-8 w-8" />
           </Button>
         </DialogTrigger>
